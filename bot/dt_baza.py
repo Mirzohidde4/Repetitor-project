@@ -3,7 +3,7 @@ import sqlite3, requests
 
 def sql_connect():
     try:
-        connection = sqlite3.connect("./db.sqlite3")  # SQLite3 bazasiga bog'lanish
+        connection = sqlite3.connect("../db.sqlite3")  # SQLite3 bazasiga bog'lanish
         connection.commit()
         return True
     except sqlite3.Error as e:
@@ -12,7 +12,7 @@ def sql_connect():
 
 
 def sql_connection():
-    connection = sqlite3.connect("./db.sqlite3")  # SQLite3 bazasiga bog'lanish
+    connection = sqlite3.connect("../db.sqlite3")  # SQLite3 bazasiga bog'lanish
     connection.commit()
     return connection
 
@@ -38,15 +38,15 @@ def OylikStatus(user, user_id, gruppa, narx, sana, malumot, oy, status):
         return False
 
 
-def PeopleTable(user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start):
+def PeopleTable(user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly):
     if sql_connect() == True:
         try:
             conn = sql_connection()
             cursor = conn.cursor()
 
             cursor.execute(
-                """INSERT INTO main_oylik (user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start),
+                """INSERT INTO main_people (user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly),
             )
             conn.commit()
             return True
@@ -75,7 +75,7 @@ def ReadDb(table):
             return l
     else:
         return False
-print(ReadDb('main_group'))
+
 
 def ReadUserStatus(user_id, gruppa):
     if sql_connect() == True:

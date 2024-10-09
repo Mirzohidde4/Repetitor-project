@@ -5,17 +5,11 @@ class Admin(models.Model):
     admin_id = models.BigIntegerField(verbose_name='admin id')
     link = models.CharField(verbose_name='link', max_length=150)
     bot_token = models.CharField(verbose_name='bot token', max_length=200, blank=True, null=True)
-    group1 = models.BigIntegerField(verbose_name='1 gruppa')
-    group2 = models.BigIntegerField(verbose_name='2 gruppa')
-    group3 = models.BigIntegerField(verbose_name='3 gruppa')
     price = models.IntegerField(verbose_name='kurs narxi')
-
-    # def __str__(self) -> str:
-    #     return self.admin_id
     
     class Meta:
         verbose_name = 'Admin'
-        verbose_name_plural = 'Admin'
+        verbose_name_plural = 'Adminlar'
 
 
 class Card(models.Model):
@@ -49,7 +43,7 @@ class Oylik(models.Model):
         verbose_name_plural = "Oyliklar"
 
 
-class Group(models.Model):
+class Gruppa(models.Model):
     name = models.CharField(verbose_name='gruppa nomi', max_length=100)
     group_id = models.BigIntegerField(verbose_name='gruppa id')
 
@@ -66,12 +60,12 @@ class People(models.Model):
     username = models.CharField(verbose_name='username', max_length=100)
     fullname = models.CharField(verbose_name='ism-familiya', max_length=100)
     phone = models.DecimalField(verbose_name='tel raqam', max_digits=13, decimal_places=0)
-    gruppa = models.ForeignKey(to=Group, on_delete=models.CASCADE)
+    gruppa = models.CharField(max_length=100, verbose_name='gruppa')
     start = models.CharField(verbose_name='start bot', max_length=10)
     toifa = models.TextField(verbose_name='toifa')
     birthday = models.CharField(max_length=10, verbose_name="tug'ilgan sana")
     region = models.CharField(verbose_name='yashash hududi', max_length=20)
-    secodn_phone = models.DecimalField(verbose_name="qo'shimcha tel", max_digits=13, decimal_places=0)
+    second_phone = models.DecimalField(verbose_name="qo'shimcha tel", max_digits=13, decimal_places=0, null=True, blank=True)
     age = models.IntegerField(verbose_name='yosh')
     goal = models.TextField(verbose_name='maqsad')
     monthly = models.CharField(verbose_name='oylik', max_length=20)
