@@ -238,6 +238,7 @@ async def EditBtn(call: CallbackQuery):
     checkbox_options[call.data] = not checkbox_options[call.data]
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=GetCheckbox(checkbox_options))
 
+
 @dp.callback_query(F.data == "submit", Info.kasb)
 async def SubmitBtn(call: CallbackQuery, state: FSMContext):
     selected_options = [option for option, is_selected in checkbox_options.items() if is_selected]
@@ -309,15 +310,10 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         this_year = datetime.now()
         usersana = str(tn_sana).split('.')[2]
         current_month = datetime.now().month
-        # group_id = (AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None)
-        # id = ((int(Read_User(api_id)) + 1) if Read_User(api_id) else 1)
         
         # data_to_send = {'id': id, 'telegram id': user_id, 'username': username, 'ism-familiya': name, 'telefon': telefon,
         #     'start bot': sanastart, 'toifa': kasb, 'tug`ilgan sana': tn_sana, 'yashash hududi': hudud, "qo'shimcha telefon": q_telefon,
         #     'yosh': f"{this_year.year - int(usersana)}", 'maqsad': maqsad, 'oylik': "to'lanmagan ❌"}        
-        
-        # response = requests.post((AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None), json={"data": [data_to_send]})
-        # print("Sheetsga yuklandi" if str(response.status_code) == "201" else "Sheetsga yuklashda xatolik")
                     
         for ch in variants:
             variants[ch] = False
@@ -336,10 +332,9 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         await call.message.answer(text="Ma'lumotlaringiz qabul qilindi.\nEndi to'lovni amalga oshiring.",
             reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{int(group)}"}, just=1))
         await state.set_state(Info.tolov)
-        response = (AdminDb[6] if group == '1' else AdminDb[7] if group == '2' else AdminDb[8] if group == '3' else False)
         await asyncio.sleep(30)
-        if response:
-            asyncio.create_task(EslatmaXabarYuborish(user_id, name, int(group), response))
+        if any(user[3] == int(group) for user in ReadDb('main_oylik')):
+            # asyncio.create_task(EslatmaXabarYuborish(user_id, name, int(group), response))
         else:
             print("Gruppa IDsi topilmadi")
     else:
