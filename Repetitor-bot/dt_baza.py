@@ -17,15 +17,36 @@ def sql_connection():
     return connection
 
 
-def OylikStatus(user, user_id, gruppa, status, narx, sana, malumot, oy):
+def OylikStatus(user, user_id, gruppa, narx, sana, malumot, oy, status):
     if sql_connect() == True:
         try:
             conn = sql_connection()
             cursor = conn.cursor()
 
             cursor.execute(
-                """INSERT INTO main_oylik (user, user_id, gruppa, status, narx, date, info, month) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (user, user_id, gruppa, status, narx, sana, malumot, oy),
+                """INSERT INTO main_oylik (user, user_id, gruppa, narx, date, info, month, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user, user_id, gruppa, narx, sana, malumot, oy, status),
+            )
+            conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"SQLite error: {e}")
+            return False
+        finally:
+            conn.close()
+    else:
+        return False
+
+
+def PeopleTable(user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start):
+    if sql_connect() == True:
+        try:
+            conn = sql_connection()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """INSERT INTO main_oylik (user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, username, fullname, phone, toifa, birthday, region, second_phone, age, goal, monthly, start),
             )
             conn.commit()
             return True
@@ -54,9 +75,7 @@ def ReadDb(table):
             return l
     else:
         return False
-for i in ReadDb('main_admin'):
-    print(i)    
-
+print(ReadDb('main_group'))
 
 def ReadUserStatus(user_id, gruppa):
     if sql_connect() == True:
@@ -102,8 +121,6 @@ def DeleteOylik(userid, gruppa):
             if conn:
                 conn.close()  # Har doim aloqani yopishni unutmang
     return False
-
-
 
 
     

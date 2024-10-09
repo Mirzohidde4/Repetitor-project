@@ -9,7 +9,7 @@ from buttons import Telefon, CreateInline, Otkazish, GetCheckbox, checkbox_optio
 from functions import Read_User, IsFamiliy, TelefonCheck, BirthCheck
 from datetime import datetime, timedelta
 from states import Info, Pay
-from dt_baza import ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik
+from dt_baza import ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable
 
 
 AdminDb = ReadDb('main_admin')[0]
@@ -79,18 +79,18 @@ async def EslatmaXabarYuborish(user_id, name, response, group):
                                 except Exception as e:
                                     print(f"Xatolik: {e}")
 
-                            api = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False) 
-                            sheets = requests.get(api).json()
-                            if sheets:
-                                for user in sheets:
-                                    if user['telegram id'] == str(user_id): 
-                                        if user['oylik'] == "to'lagan ✅":
-                                            update_data = {'oylik': "to'lanmagan ❌"}
-                                            response_sheets = requests.patch(f"{api}/telegram%20id/{str(user_id)}", json={"data": [update_data]})
-                                            if response_sheets.status_code == 200:
-                                                print("Ma'lumot muvaffaqiyatli yangilandi")
-                                            else:
-                                                print(f"Sheets ozgartirishda xato: {response_sheets.status_code}")             
+                            # api = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False) 
+                            # sheets = requests.get(api).json()
+                            # if sheets:
+                            #     for user in sheets:
+                            #         if user['telegram id'] == str(user_id): 
+                            #             if user['oylik'] == "to'lagan ✅":
+                            #                 update_data = {'oylik': "to'lanmagan ❌"}
+                            #                 response_sheets = requests.patch(f"{api}/telegram%20id/{str(user_id)}", json={"data": [update_data]})
+                            #                 if response_sheets.status_code == 200:
+                            #                     print("Ma'lumot muvaffaqiyatli yangilandi")
+                            #                 else:
+                            #                     print(f"Sheets ozgartirishda xato: {response_sheets.status_code}")             
                 
                 soni = 1
                 while not ReadUserStatus(user_id, response):
@@ -103,12 +103,12 @@ async def EslatmaXabarYuborish(user_id, name, response, group):
                         except Exception as e:
                             print(f"Oylik ochirishda xatolik: {e}")
 
-                        sheets = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False)
-                        try:
-                            action = requests.delete(f"{sheets}/telegram%20id/{str(user_id)}")
-                        except Exception as e:
-                            print(f"Sheetsdan ochirishda xatolik: {e}")
-                        print("Ma'lumot muvaffaqiyatli o'chirildi" if action.status_code == 200 else f"Sheets ochirishda xato: {action.status_code}")
+                        # sheets = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False)
+                        # try:
+                        #     action = requests.delete(f"{sheets}/telegram%20id/{str(user_id)}")
+                        # except Exception as e:
+                        #     print(f"Sheetsdan ochirishda xatolik: {e}")
+                        # print("Ma'lumot muvaffaqiyatli o'chirildi" if action.status_code == 200 else f"Sheets ochirishda xato: {action.status_code}")
 
                         user_status = await bot.get_chat_member(group, user_id)
                         if user_status.status not in ['creator', 'administrator']:
@@ -135,13 +135,13 @@ async def EslatmaXabarYuborish(user_id, name, response, group):
                     except Exception as e:
                         print(f"Oylik ochirishda xatolik: {e}")
 
-                    sheets = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False)
-                    try:
-                        action = requests.delete(f"{sheets}/telegram%20id/{str(user_id)}")
-                    except Exception as e:
-                        print(f"Sheetsdan ochirishda xatolik: {e}")
-                    print("Ma'lumot muvaffaqiyatli o'chirildi" if action.status_code == 200 else f"Sheets ochirishda xato: {action.status_code}")
-                    await bot.send_message(user_id, "Ma'lumotlaringiz bekor qilindi.")
+                    # sheets = (AdminDb[3] if response == 1 else AdminDb[4] if response == 2 else AdminDb[5] if response == 3 else False)
+                    # try:
+                    #     action = requests.delete(f"{sheets}/telegram%20id/{str(user_id)}")
+                    # except Exception as e:
+                    #     print(f"Sheetsdan ochirishda xatolik: {e}")
+                    # print("Ma'lumot muvaffaqiyatli o'chirildi" if action.status_code == 200 else f"Sheets ochirishda xato: {action.status_code}")
+                    # await bot.send_message(user_id, "Ma'lumotlaringiz bekor qilindi.")
                     break
                 son += 1       
                 await asyncio.sleep(30)
@@ -161,7 +161,6 @@ async def Start(message: Message, state: FSMContext):
         job = True
         try:
             response = int(referal[0])
-            # response = requests.get(AdminDb[3] if referal[0] == '1' else AdminDb[4] if referal[0] == '2' else AdminDb[5] if referal[0] == '3' else False).json()
             if ReadDb('main_oylik'):
                 for i in ReadDb('main_oylik'):
                     if (i[2] == int(user_id)) and (i[3] == response):
@@ -189,7 +188,6 @@ Iltimos, familiya-ismingizni yozing (diqqat! dastlab familiya, keyin ismingizni 
             await state.set_state(Info.name)
     else:
         await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
-        # await message.answer(text="😊 <b>Assalomu alaykm botdan foydalanish uchun adminga yuzlaning.</b>", reply_markup=CreateInline({'👤 Admin': AdminDb[1]}, just=1))
 
 
 @dp.message(Info.name)
@@ -308,30 +306,30 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         hudud = data.get('hudud')
         user_id = call.message.chat.id
         username = (f"@{call.message.chat.username}" if call.message.chat.username else None)
-        api_id = (AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None)
-        id = ((int(Read_User(api_id)) + 1) if Read_User(api_id) else 1)
         this_year = datetime.now()
         usersana = str(tn_sana).split('.')[2]
         current_month = datetime.now().month
+        # group_id = (AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None)
+        # id = ((int(Read_User(api_id)) + 1) if Read_User(api_id) else 1)
         
-        data_to_send = {'id': id, 'telegram id': user_id, 'username': username, 'ism-familiya': name, 'telefon': telefon,
-            'start bot': sanastart, 'toifa': kasb, 'tug`ilgan sana': tn_sana, 'yashash hududi': hudud, "qo'shimcha telefon": q_telefon,
-            'yosh': f"{this_year.year - int(usersana)}", 'maqsad': maqsad, 'oylik': "to'lanmagan ❌"}        
+        # data_to_send = {'id': id, 'telegram id': user_id, 'username': username, 'ism-familiya': name, 'telefon': telefon,
+        #     'start bot': sanastart, 'toifa': kasb, 'tug`ilgan sana': tn_sana, 'yashash hududi': hudud, "qo'shimcha telefon": q_telefon,
+        #     'yosh': f"{this_year.year - int(usersana)}", 'maqsad': maqsad, 'oylik': "to'lanmagan ❌"}        
         
-        response = requests.post((AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None), json={"data": [data_to_send]})
-        print("Sheetsga yuklandi" if str(response.status_code) == "201" else "Sheetsga yuklashda xatolik")
+        # response = requests.post((AdminDb[3] if group == '1' else AdminDb[4] if group == '2' else AdminDb[5] if group == '3' else None), json={"data": [data_to_send]})
+        # print("Sheetsga yuklandi" if str(response.status_code) == "201" else "Sheetsga yuklashda xatolik")
                     
         for ch in variants:
             variants[ch] = False
         
         act = True
-        if ReadDb('Oylik'):
-            if any((human[1] == int(user_id) and human[2] == int(group)) for human in ReadDb('Oylik')):
+        if ReadDb('main_oylik'):
+            if any((human[1] == int(user_id) and human[2] == int(group)) for human in ReadDb('main_oylik')):
                 print('Already exits')
                 act = False
         if act:    
             try:
-                OylikStatus(name, user_id, group, False, AdminDb[9], 0, False, current_month)
+                OylikStatus(name, user_id, int(group), AdminDb[6], 0, 0, current_month, 0)
             except Exception as e:
                 print(f"Bazaga qoshishda xatolik: {e}")
 

@@ -49,12 +49,25 @@ class Oylik(models.Model):
         verbose_name_plural = "Oyliklar"
 
 
+class Group(models.Model):
+    name = models.CharField(verbose_name='gruppa nomi', max_length=100)
+    group_id = models.BigIntegerField(verbose_name='gruppa id')
+
+    def __str__(self) -> str:
+        return self.name
+    
+    class Meta:
+        verbose_name = 'Gruppa'
+        verbose_name_plural = 'Gruppalar'
+
+
 class People(models.Model):
     user_id = models.BigIntegerField(verbose_name='telegram id')
     username = models.CharField(verbose_name='username', max_length=100)
     fullname = models.CharField(verbose_name='ism-familiya', max_length=100)
     phone = models.DecimalField(verbose_name='tel raqam', max_digits=13, decimal_places=0)
-    start = models.DateTimeField(verbose_name='start bot', auto_now_add=True)
+    gruppa = models.ForeignKey(to=Group, on_delete=models.CASCADE)
+    start = models.CharField(verbose_name='start bot', max_length=10)
     toifa = models.TextField(verbose_name='toifa')
     birthday = models.CharField(max_length=10, verbose_name="tug'ilgan sana")
     region = models.CharField(verbose_name='yashash hududi', max_length=20)
