@@ -16,6 +16,12 @@ class AdminAdmin(admin.ModelAdmin):
 class AdminAdmin(admin.ModelAdmin):
     list_display = ('photo', 'number', 'username')
 
+    def has_add_permission(self, request):
+        if Card.objects.count() >= 1:
+            return False
+        else:
+            return True
+
 
 @admin.register(Gruppa)
 class AdminAdmin(admin.ModelAdmin):
