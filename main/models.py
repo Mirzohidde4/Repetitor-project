@@ -76,3 +76,19 @@ class People(models.Model):
     class Meta:
         verbose_name = "O'quvchi"
         verbose_name_plural = "O'quvchilar"
+
+
+#! tgdan user ochirish
+from django.apps import AppConfig
+
+class YourAppConfig(AppConfig):
+    name = 'your_app'
+
+    def ready(self):
+        import main.signals  # Bu yerda signalni yuklaymiz
+
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+class CustomUser(AbstractUser):
+    telegram_user_id = models.CharField(max_length=255, blank=True, null=True)

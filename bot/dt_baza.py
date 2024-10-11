@@ -105,6 +105,22 @@ def UpdateOylik(argument, status, user_id, group):
             con.close()  # Ulanishni yopish shart emas, chunki "with" operatori avtomatik yopadi
 
 
+def UpdatePeople(argument, status, user_id, group):
+    try:
+        with sqlite3.connect("../db.sqlite3") as con:
+            cur = con.cursor()
+            cur.execute(f"UPDATE main_people SET {argument} = ? WHERE user_id = ? AND gruppa = ?", (status, user_id, group))
+            con.commit()
+            print(f"Updated {argument} for user_id: {user_id} in group: {group}")  # Logging
+            return True
+    except sqlite3.Error as err:
+        print(f"SQLite Error: {err}")  # Error logging
+        return False
+    finally:
+        if con:
+            con.close()  # Ulanishni yopish shart emas, chunki "with" operatori avtomatik yopadi
+
+
 def DeleteOylik(userid, gruppa):
     if sql_connect():
         try:

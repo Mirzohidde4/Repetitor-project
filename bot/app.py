@@ -9,7 +9,7 @@ from buttons import Telefon, CreateInline, Otkazish, GetCheckbox, checkbox_optio
 from functions import Read_User, IsFamiliy, TelefonCheck, BirthCheck
 from datetime import datetime, timedelta
 from states import Info, Pay
-from dt_baza import ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople
+from dt_baza import ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople, UpdatePeople
 
 
 AdminDb = ReadDb('main_admin')[0]
@@ -394,7 +394,7 @@ async def Accept(call: CallbackQuery, state: FSMContext):
                 if member[6] == 0:
                     try:
                         UpdateOylik('info', 1, user_id, int(sheetgroup))
-                        # people update qilish kerak
+                        UpdatePeople('monthly', "to'lagan ✅", user_id, int(sheetgroup))
                     except Exception as e:
                         print(f"Oylik info yangilashda xatolik: {str(e)}")  
                     
@@ -484,6 +484,20 @@ async def Tozalash(call: CallbackQuery):
             await bot.send_message(chat_id=user_id, text=f"➕ <b>Siz guruhni tark etdingiz, havola orqali qayta qo'shilishingiz mumkin.</b>\n\n{invite_link.invite_link}")
         except Exception as e:
             print(f"Havola yaratishda xatolik: {str(e)}") 
+
+
+async def send_message_to_users():
+    while True:
+        now = datetime.now()
+        if now.day == 20 and now.hour == 0 and now.minute == 0:
+            # message = await bot.send_message(chat_id=admin(), text="<b>🕔 Bot o'chib qolishiga 2 kun qolganini ma'lum qilamiz, o'chib qolishini oldini olish uchun dasturchi bilan aloqaga chiqishingizni iltimos qilamiz.</b>")
+            # await bot.pin_chat_message(chat_id=admin(), message_id=message.message_id)
+            await asyncio.sleep(60)
+        await asyncio.sleep(30)
+
+@dp.startup()
+async def on_startup():
+    asyncio.create_task(send_message_to_users())
 
 
 async def main():

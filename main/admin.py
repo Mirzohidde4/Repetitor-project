@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from .models import Admin, Card, Oylik, People, Gruppa
 from django.contrib.auth.models import User, Group
 
@@ -13,7 +13,7 @@ class AdminAdmin(admin.ModelAdmin):
 
 
 @admin.register(Card)
-class AdminAdmin(admin.ModelAdmin):
+class AdminCard(admin.ModelAdmin):
     list_display = ('photo', 'number', 'username')
 
     def has_add_permission(self, request):
@@ -24,15 +24,17 @@ class AdminAdmin(admin.ModelAdmin):
 
 
 @admin.register(Gruppa)
-class AdminAdmin(admin.ModelAdmin):
+class AdminGruppa(admin.ModelAdmin):
     list_display = ('name', 'group_id')
 
 
 @admin.register(Oylik)
-class AdminAdmin(admin.ModelAdmin):
+class AdminOylik(admin.ModelAdmin):
     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
 
 
 @admin.register(People)
 class AdminAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'username', 'fullname', 'phone', 'gruppa', 'start', 'toifa', 'birthday', 'region', 'second_phone', 'age', 'goal', 'monthly')
+
+
