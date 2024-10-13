@@ -19,110 +19,113 @@ bot = Bot(token=AdminDb[4], default=DefaultBotProperties(parse_mode=ParseMode.HT
 dp = Dispatcher()
 
 
-async def EslatmaXabarYuborish(user_id, name, group):
-    while True:
-        if ReadDb('main_oylik'):
-            for i in ReadDb('main_oylik'):
-                if i[2] == int(user_id) and i[3] == int(group):
-                    malumot = i[6]
-
-        # if int(malumot) == 1:
-        #     today = datetime.now()
-        #     if today.day == 7: 
-        #         for aziz in ReadDb('Oylik'):
-        #             if aziz[1] == int(user_id) and i[2] == int(response):
-        #                 if aziz[5] >= 29: 
-        #                     oy = datetime.now().month
-        #                     if (aziz[7] == 12) and (oy == 2): #tekshirilmagan
-        #                         try:
-        #                             UpdateOylik('status', False, aziz[1], aziz[2])
-        #                             UpdateOylik('narx', 100, aziz[1], aziz[2])
-        #                         except Exception as e:
-        #                             print(f"Xatolik: {e}")
-                            
-        #                     elif (oy - aziz[7]) > 1:
-        #                         try:
-        #                             UpdateOylik('status', False, aziz[1], aziz[2])
-        #                             UpdateOylik('narx', 100, aziz[1], aziz[2])
-        #                         except Exception as e:
-        #                             print(f"Xatolik: {e}")
-        #                     else:
-        #                         print("Skidka")        
-        #                 else:
-        #                     if (aziz[7] == 2) and (aziz[5] >= 27):
-        #                         # oy = datetime.now().month
-        #                         # if (oy - aziz[7]) > 1:
-        #                         #     try:
-        #                         #         UpdateOylik('status', False, aziz[1], aziz[2])
-        #                         #         UpdateOylik('narx', 100, aziz[1], aziz[2])
-        #                         #     except Exception as e:
-        #                         #         print(f"Xatolik: {e}")
-        #                         # else:
-        #                             print("Skidka") 
-
-        #                     elif aziz[5] <= 5:
-        #                         try:
-        #                             UpdateOylik('status', False, aziz[1], aziz[2])
-        #                             UpdateOylik('narx', 100, aziz[1], aziz[2])
-        #                         except Exception as e:
-        #                             print(f"Xatolik: {e}")  
-
-        #                     else:
-        #                         oylik_kunlar_soni = calendar.monthrange(today.year, today.month)[1]
-        #                         kunlar_soni = oylik_kunlar_soni - aziz[5]
-        #                         narx = (100 * kunlar_soni) / oylik_kunlar_soni
-        #                         try:
-        #                             UpdateOylik('status', False, aziz[1], aziz[2])
-        #                             UpdateOylik('narx', int(narx), aziz[1], aziz[2])
-        #                         except Exception as e:
-        #                             print(f"Xatolik: {e}")         
-                
-        #         soni = 1
-        #         while not ReadUserStatus(user_id, response):
-        #             if soni <= 3:
-        #                 await bot.send_message(chat_id=user_id, text="Oylik to'lovni amalga oshiring", 
-        #                     reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{response}"}, just=1))
-        #             else:
-        #                 try:
-        #                     DeleteOylik(int(user_id), int(response))
-        #                 except Exception as e:
-        #                     print(f"Oylik ochirishda xatolik: {e}")
-
-        #                 user_status = await bot.get_chat_member(group, user_id)
-        #                 if user_status.status not in ['creator', 'administrator']:
-        #                     try:
-        #                         await bot.ban_chat_member(group, user_id)
-        #                         await bot.send_message(user_id, text="To'lovni amalga oshirmaganingiz uchun siz gurugdan chetlatildingiz.") 
-        #                     except Exception as e:
-        #                         print(f"user chiqarishda xatolik: {e}")        
-        #                 else:
-        #                     print(user_status.status, type(user_status.status))   
-        #                 break  
-        #             soni += 1       
-        #             await asyncio.sleep(30)          
+async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
+    if ReadDb('main_oylik'):
+        for i in ReadDb('main_oylik'):
+            if i[2] == int(user_id) and i[3] == int(group):
+                malumot = i[6]
+    
+    if any((user[2] == int(user_id) and user[3] == int(group)) for user in ReadDb('main_oylik')):
+        if int(malumot) == 0:
+            son = 1
+            while not ReadUserStatus(user_id, group): 
+                if son <= 3:
+                    await bot.send_message(user_id, text="Siz hali to'lovni amalga oshirmadingiz. Iltimos, to'lov qiling!",
+                        reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{group}"}, just=1))
+                else:
+                    try:
+                        DeleteOylik(int(user_id), int(group))
+                        DeletePeople(int(user_id), int(group))
+                        await bot.send_message(int(user_id), "To'lov qilmaganingiz uchun ma'lumotlaringiz bekor qilindi.")
+                    except Exception as e:
+                        print(f"User ochirishda xatolik: {e}")
+                    break
+                son += 1       
+                await asyncio.sleep(30)
         
-        if any((user[2] == int(user_id) and user[3] == int(group)) for user in ReadDb('main_oylik')):
-            if int(malumot) == 0:
-                son = 1
-                while not ReadUserStatus(user_id, group): 
-                    if son <= 3:
-                        await bot.send_message(user_id, text="Siz hali to'lovni amalga oshirmadingiz. Iltimos, to'lov qiling!",
-                            reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{group}"}, just=1))
+        elif int(malumot) == 1:
+            today = datetime.now()
+            if today.day == 13:
+                if ReadDb('main_oylik'):
+                    for member in ReadDb('main_oylik'):
+                        if (member[2] == int(user_id)) and (member[3] == int(group)): 
+                            oy = datetime.now().month
+                            if member[5] >= 29: 
+                                if (member[7] == 12) and (oy == 2):
+                                    try:
+                                        UpdateOylik('status', False, member[2], member[3])
+                                        UpdateOylik('narx', 100, member[2], member[3])
+                                    except Exception as e:
+                                        print(f"Xatolik: {e}")
+                                
+                                elif (oy - member[7]) > 1:
+                                    try:
+                                        UpdateOylik('status', False, member[2], member[3])
+                                        UpdateOylik('narx', 100, member[2], member[3])
+                                    except Exception as e:
+                                        print(f"Xatolik: {e}")
+                                else:
+                                    print("Skidka")        
+                            else:
+                                if (member[7] == 2) and (member[5] >= 27):
+                                    if (oy - member[7]) > 1:
+                                        try:
+                                            UpdateOylik('status', False, member[2], member[3])
+                                            UpdateOylik('narx', 100, member[2], member[3])
+                                        except Exception as e:
+                                            print(f"Xatolik: {e}")
+                                    else:        
+                                        print("Skidka") 
+
+                                elif member[5] <= 5:
+                                    if (oy - member[7]) > 1:
+                                        try:
+                                            UpdateOylik('status', False, member[2], member[3])
+                                            UpdateOylik('narx', 100, member[2], member[3])
+                                        except Exception as e:
+                                            print(f"Xatolik: {e}")  
+                                    else:        
+                                        print("Skidka")        
+
+                                else:
+                                    if (oy - member[7]) > 1:
+                                        oylik_kunlar_soni = calendar.monthrange(today.year, today.month)[1]
+                                        kunlar_soni = oylik_kunlar_soni - member[5]
+                                        narx = (100 * kunlar_soni) / oylik_kunlar_soni
+                                        try:
+                                            UpdateOylik('status', False, member[2], member[3])
+                                            UpdateOylik('narx', int(narx), member[2], member[3])
+                                        except Exception as e:
+                                            print(f"Xatolik: {e}") 
+                                    else:        
+                                        print("Skidka")          
+
+                soni = 1
+                while not ReadUserStatus(member[2], member[3]):
+                    if soni <= 3:
+                        await bot.send_message(chat_id=member[2], text="Oylik to'lovni amalga oshiring", 
+                            reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{member[1]}_{member[3]}"}, just=1))
                     else:
                         try:
-                            DeleteOylik(int(user_id), int(group))
-                            DeletePeople(int(user_id), int(group))
-                            await bot.send_message(int(user_id), "To'lov qilmaganingiz uchun ma'lumotlaringiz bekor qilindi.")
+                            DeleteOylik(member[2], member[3])
+                            DeletePeople(member[2], member[3])
                         except Exception as e:
-                            print(f"Oylik ochirishda xatolik: {e}")
-                        break
-                    son += 1       
-                    await asyncio.sleep(30)
-            else:
-                break        
-        else:
-            break        
-        await asyncio.sleep(30)  
+                            print(f"User ochirishda xatolik: {e}")
+
+                        user_status = await bot.get_chat_member(member[3], member[2])
+                        if user_status.status not in ['creator', 'administrator']:
+                            try:
+                                await bot.ban_chat_member(member[3], member[2])
+                                await bot.send_message(member[2], text="To'lovni amalga oshirmaganingiz uchun siz gurugdan chetlatildingiz.") 
+                            except Exception as e:
+                                print(f"user chiqarishda xatolik: {e}")        
+                        else:
+                            print(user_status.status, type(user_status.status))   
+                        break  
+                    soni += 1       
+                    await asyncio.sleep(30) 
+    else:
+        print("Foydalanuvchi topilmadi")                              
 
 
 @dp.message(CommandStart())
@@ -394,7 +397,6 @@ async def Accept(call: CallbackQuery, state: FSMContext):
                 if member[6] == 0:
                     try:
                         UpdateOylik('info', 1, user_id, int(sheetgroup))
-                        UpdatePeople('monthly', "to'lagan ✅", user_id, int(sheetgroup))
                     except Exception as e:
                         print(f"Oylik info yangilashda xatolik: {str(e)}")  
                     
@@ -407,6 +409,7 @@ async def Accept(call: CallbackQuery, state: FSMContext):
                         print(f"Havola yaratishda xatolik: {str(e)}")  
                 try:        
                     UpdateOylik('status', 1, user_id, int(sheetgroup))
+                    UpdatePeople('monthly', "to'lagan ✅", user_id, int(sheetgroup))
                     UpdateOylik('date', int(sana), user_id, int(sheetgroup))
                 except Exception as e:
                     print(f"Oylik status yangilashda xatolik: {str(e)}")  
@@ -488,12 +491,11 @@ async def Tozalash(call: CallbackQuery):
 
 async def send_message_to_users():
     while True:
-        now = datetime.now()
-        if now.day == 20 and now.hour == 0 and now.minute == 0:
-            # message = await bot.send_message(chat_id=admin(), text="<b>🕔 Bot o'chib qolishiga 2 kun qolganini ma'lum qilamiz, o'chib qolishini oldini olish uchun dasturchi bilan aloqaga chiqishingizni iltimos qilamiz.</b>")
-            # await bot.pin_chat_message(chat_id=admin(), message_id=message.message_id)
-            await asyncio.sleep(60)
-        await asyncio.sleep(30)
+        if ReadDb('main_oylik'):
+            for member in ReadDb('main_oylik'):
+                EslatmaXabarYuborish(member[2], member[1], member[3])
+        await asyncio.sleep(60)        
+
 
 @dp.startup()
 async def on_startup():
@@ -507,8 +509,8 @@ async def main():
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except:
-        print("bot o`chdi")
+    except Exception as e:
+        print(f"Bot o`chdi: {e}")
 
 
     
