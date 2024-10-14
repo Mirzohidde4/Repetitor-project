@@ -19,7 +19,7 @@ bot = Bot(token=AdminDb[4], default=DefaultBotProperties(parse_mode=ParseMode.HT
 dp = Dispatcher()
 
 
-async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
+async def EslatmaXabarYuborish(user_id, name, group):
     if ReadDb('main_oylik'):
         for i in ReadDb('main_oylik'):
             if i[2] == int(user_id) and i[3] == int(group):
@@ -45,12 +45,12 @@ async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
         
         elif int(malumot) == 1:
             today = datetime.now()
-            if today.day == 14 and today.hour == 15:
+            if today.day == 14:
                 if ReadDb('main_oylik'):
                     for member in ReadDb('main_oylik'):
                         if (member[2] == int(user_id)) and (member[3] == int(group)): 
                             # oy = datetime.now().month
-                            oy = 11
+                            oy = 11 #! vaxtincha
                             if member[5] >= 29: 
                                 if (member[7] == 12) and (oy == 2):
                                     try:
@@ -454,7 +454,7 @@ async def NewMember(message: Message):
                 print(user_status.status)
 
 
-@dp.message(F.left_chat_member) # tekshirish *
+@dp.message(F.left_chat_member) 
 async def LeftMember(message: Message):
     if message.left_chat_member:
         user_id = message.left_chat_member.id
@@ -495,17 +495,17 @@ async def Tozalash(call: CallbackQuery):
             print(f"Havola yaratishda xatolik: {str(e)}") 
 
 
-# async def send_message_to_users():
-#     while True:
-#         if ReadDb('main_oylik'):
-#             for member in ReadDb('main_oylik'):
-#                 await EslatmaXabarYuborish(member[2], member[1], member[3])
-#         await asyncio.sleep(60)        
+async def send_message_to_users():
+    while True:
+        if ReadDb('main_oylik'):
+            for member in ReadDb('main_oylik'):
+                await EslatmaXabarYuborish(member[2], member[1], member[3])
+        await asyncio.sleep(60)        
 
 
-# @dp.startup()
-# async def on_startup():
-#     asyncio.create_task(send_message_to_users())
+@dp.startup()
+async def on_startup():
+    asyncio.create_task(send_message_to_users())
 
 
 async def main():
@@ -619,27 +619,3 @@ if __name__ == "__main__":
 #         await state.clear()
 #         await call.message.answer(text="⛔️ <b>Ma'lumotlaringiz bekor qilindi.</b>")                    
               
-
-
-
-
-
-
-# @dp.message(Command('admin'))
-# async def AdminPanel(message: Message):
-#     if message.from_user.id == AdminDb[0]:
-#         await message.answer(
-#             text="Administrator paneliga xush kelibsiz.\n",
-#             reply_markup=CreateInline({'🤖 Bot yaratish': 'bot_yaratish', '🔙 Orqaga': 'bot_orqaga'}, just=1)
-#         )
-
-
-# @dp.callback_query(F.data.startswith('bot_'))
-# async def CreateBot(call: CallbackQuery, state: FSMContext):
-#     action = call.data.split('_')[1]
-#     if action == 'yaratish':
-#         await call.message.answer(text="Bot tokenini yuboring:")
-#         await state.set_state(Admin.token)
-    
-#     elif action == 'orqaga':
-#         await call.message.delete()

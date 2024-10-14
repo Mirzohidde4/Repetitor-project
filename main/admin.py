@@ -11,6 +11,12 @@ admin.site.unregister(Group)
 class AdminAdmin(admin.ModelAdmin):
     list_display = ('admin_id', 'link', 'bot_token', 'price')
 
+    def has_add_permission(self, request):
+        if Card.objects.count() >= 1:
+            return False
+        else:
+            return True
+
 
 @admin.register(Card)
 class AdminCard(admin.ModelAdmin):
