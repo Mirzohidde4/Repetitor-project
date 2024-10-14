@@ -45,16 +45,18 @@ async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
         
         elif int(malumot) == 1:
             today = datetime.now()
-            if today.day == 13:
+            if today.day == 14 and today.hour == 15:
                 if ReadDb('main_oylik'):
                     for member in ReadDb('main_oylik'):
                         if (member[2] == int(user_id)) and (member[3] == int(group)): 
-                            oy = datetime.now().month
+                            # oy = datetime.now().month
+                            oy = 11
                             if member[5] >= 29: 
                                 if (member[7] == 12) and (oy == 2):
                                     try:
                                         UpdateOylik('status', False, member[2], member[3])
                                         UpdateOylik('narx', 100, member[2], member[3])
+                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
                                     except Exception as e:
                                         print(f"Xatolik: {e}")
                                 
@@ -62,6 +64,7 @@ async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
                                     try:
                                         UpdateOylik('status', False, member[2], member[3])
                                         UpdateOylik('narx', 100, member[2], member[3])
+                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
                                     except Exception as e:
                                         print(f"Xatolik: {e}")
                                 else:
@@ -72,29 +75,32 @@ async def EslatmaXabarYuborish(user_id, name, group): # yaxshilab testlash kerak
                                         try:
                                             UpdateOylik('status', False, member[2], member[3])
                                             UpdateOylik('narx', 100, member[2], member[3])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
                                         except Exception as e:
                                             print(f"Xatolik: {e}")
                                     else:        
                                         print("Skidka") 
 
                                 elif member[5] <= 5:
-                                    if (oy - member[7]) > 1:
+                                    if (oy - member[7]) == 1:
                                         try:
                                             UpdateOylik('status', False, member[2], member[3])
                                             UpdateOylik('narx', 100, member[2], member[3])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
                                         except Exception as e:
                                             print(f"Xatolik: {e}")  
                                     else:        
                                         print("Skidka")        
 
                                 else:
-                                    if (oy - member[7]) > 1:
+                                    if (oy - member[7]) == 1:
                                         oylik_kunlar_soni = calendar.monthrange(today.year, today.month)[1]
                                         kunlar_soni = oylik_kunlar_soni - member[5]
                                         narx = (100 * kunlar_soni) / oylik_kunlar_soni
                                         try:
                                             UpdateOylik('status', False, member[2], member[3])
                                             UpdateOylik('narx', int(narx), member[2], member[3])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
                                         except Exception as e:
                                             print(f"Xatolik: {e}") 
                                     else:        
@@ -390,7 +396,7 @@ async def Accept(call: CallbackQuery, state: FSMContext):
         await bot.delete_message(chat_id=user_id, message_id=sendpay)        
         for member in ReadDb('main_oylik'):
             if (member[2] == int(user_id)) and (member[3] == int(sheetgroup)):
-                fullname = member[1] # tekshirilmagan
+                fullname = member[1]
                 await bot.send_message(chat_id=user_id,
                     text=f"Qadrli <b>{fullname}</b>, to'lovingiz tasdiqlandi. Jalol Boltayev ustozga ishonchingiz uchun rahmat! Biz ham jamoamiz bilan sizning ishonchingizni oqlashga qattiq harakat qilamiz. Jalol ustoz test materiallari, ta'lim sifati, metodika bilan shug'ullanadi, to'lov masalalari bilan esa men shug'ullanaman. Har to'lov payti kelganda eslatib turaman :)")
                 
@@ -448,14 +454,14 @@ async def NewMember(message: Message):
                 print(user_status.status)
 
 
-@dp.message(F.left_chat_member)
+@dp.message(F.left_chat_member) # tekshirish *
 async def LeftMember(message: Message):
     if message.left_chat_member:
         user_id = message.left_chat_member.id
         user_url = message.left_chat_member.url
         group_id = message.chat.id
         response = next((gr[1] for gr in ReadDb('main_group') if gr[2] == int(group_id)), None)
-
+        print(response)
         if ReadDb('main_oylik'):
             for user in ReadDb('main_oylik'):
                 if (user[2] == user_id) and (user[3] == group_id):
@@ -489,17 +495,17 @@ async def Tozalash(call: CallbackQuery):
             print(f"Havola yaratishda xatolik: {str(e)}") 
 
 
-async def send_message_to_users():
-    while True:
-        if ReadDb('main_oylik'):
-            for member in ReadDb('main_oylik'):
-                EslatmaXabarYuborish(member[2], member[1], member[3])
-        await asyncio.sleep(60)        
+# async def send_message_to_users():
+#     while True:
+#         if ReadDb('main_oylik'):
+#             for member in ReadDb('main_oylik'):
+#                 await EslatmaXabarYuborish(member[2], member[1], member[3])
+#         await asyncio.sleep(60)        
 
 
-@dp.startup()
-async def on_startup():
-    asyncio.create_task(send_message_to_users())
+# @dp.startup()
+# async def on_startup():
+#     asyncio.create_task(send_message_to_users())
 
 
 async def main():
