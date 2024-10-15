@@ -32,15 +32,17 @@ class AdminCard(admin.ModelAdmin):
 @admin.register(Gruppa)
 class AdminGruppa(admin.ModelAdmin):
     list_display = ('name', 'group_id')
+    search_fields = ['name']
 
 
 @admin.register(Oylik)
 class AdminOylik(admin.ModelAdmin):
     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
+    search_fields = ['user', 'user_id']
 
 
 @admin.register(People)
 class AdminAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'username', 'fullname', 'phone', 'gruppa', 'start', 'toifa', 'birthday', 'region', 'second_phone', 'age', 'goal', 'monthly')
-
+    search_fields = ['fullname', 'username', 'phone', 'user_id']
 

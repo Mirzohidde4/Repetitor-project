@@ -144,43 +144,43 @@ async def Start(message: Message, state: FSMContext):
             bot_username = bot_info.username
             link = f"https://t.me/{bot_username}?start={i[2]}"
             await message.answer(text=f"{i[1]}: {link}")
-        return
-
-    referal = message.text.split()[1:]
-    if referal:
-        await state.update_data({'group': referal[0]})
-        user_id = message.from_user.id
-        fulname = message.from_user.full_name
-        job = True
-        try:
-            response = int(referal[0])
-            if ReadDb('main_oylik'):
-                for i in ReadDb('main_oylik'):
-                    if (i[2] == int(user_id)) and (i[3] == response):
-                        await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
-                        job = False
-                    break
-        except Exception as e:
-            print("User qidirishda xatolik: ", e)    
-
-        if job:
-            await message.answer(
-                text=f"""
-                    Assalomu alaykum, hurmatli <b>{fulname}</b>. Jalol Boltayevning onlayn kursida o'qimoqchimisiz? Men ustoz Jalol Boltayevning yordamchi botiman! 😎🤖
-Ism-familiya, telefon raqami kabi ba'zi ma'lumotlaringizni yozib olishim kerak. Bu juda qisqa vaqt oladi. Keyin sizga yopiq guruhning havolasini yuboraman.
-                """)
-            await asyncio.sleep(0.2)
-            await message.answer(
-                text="""
-                    Demak, boshladik.
-Iltimos, familiya-ismingizni yozing (diqqat! dastlab familiya, keyin ismingizni yozing. Masalan, Boltayev Jalol).
-                """)
-            dt = datetime.now()
-            date = dt.strftime("%d-%m-%Y")
-            await state.update_data({'date': date})
-            await state.set_state(Info.name)
+    
     else:
-        await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
+        referal = message.text.split()[1:]
+        if referal:
+            await state.update_data({'group': referal[0]})
+            user_id = message.from_user.id
+            fulname = message.from_user.full_name
+            job = True
+            try:
+                response = int(referal[0])
+                if ReadDb('main_oylik'):
+                    for i in ReadDb('main_oylik'):
+                        if (i[2] == int(user_id)) and (i[3] == response):
+                            await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
+                            job = False
+                        break
+            except Exception as e:
+                print("User qidirishda xatolik: ", e)    
+
+            if job:
+                await message.answer(
+                    text=f"""
+                        Assalomu alaykum, hurmatli <b>{fulname}</b>. Jalol Boltayevning onlayn kursida o'qimoqchimisiz? Men ustoz Jalol Boltayevning yordamchi botiman! 😎🤖
+Ism-familiya, telefon raqami kabi ba'zi ma'lumotlaringizni yozib olishim kerak. Bu juda qisqa vaqt oladi. Keyin sizga yopiq guruhning havolasini yuboraman.
+                    """)
+                await asyncio.sleep(0.2)
+                await message.answer(
+                    text="""
+                        Demak, boshladik.
+Iltimos, familiya-ismingizni yozing (diqqat! dastlab familiya, keyin ismingizni yozing. Masalan, Boltayev Jalol).
+                    """)
+                dt = datetime.now()
+                date = dt.strftime("%d-%m-%Y")
+                await state.update_data({'date': date})
+                await state.set_state(Info.name)
+        else:
+            await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
 
 
 @dp.message(Info.name)
@@ -469,7 +469,7 @@ async def LeftMember(message: Message):
         user_id = message.left_chat_member.id
         user_url = message.left_chat_member.url
         group_id = message.chat.id
-        response = next((gr[1] for gr in ReadDb('main_group') if gr[2] == int(group_id)), None)
+        response = next((gr[1] for gr in ReadDb('main_gruppa') if gr[2] == int(group_id)), None)
         print(response)
         if ReadDb('main_oylik'):
             for user in ReadDb('main_oylik'):

@@ -57,7 +57,7 @@ class Gruppa(models.Model):
 
 class People(models.Model):
     user_id = models.BigIntegerField(verbose_name='telegram id')
-    username = models.CharField(verbose_name='username', max_length=100)
+    username = models.CharField(verbose_name='username', max_length=100, null=True, blank=True)
     fullname = models.CharField(verbose_name='ism-familiya', max_length=100)
     phone = models.DecimalField(verbose_name='tel raqam', max_digits=13, decimal_places=0)
     gruppa = models.CharField(max_length=100, verbose_name='gruppa')
@@ -71,7 +71,7 @@ class People(models.Model):
     monthly = models.CharField(verbose_name='oylik', max_length=20)
 
     def __str__(self) -> str:
-        return self.username
+        return self.fullname
     
     class Meta:
         verbose_name = "O'quvchi"

@@ -17,7 +17,7 @@ def kick_user_from_telegram(sender, instance, **kwargs):
             response = requests.get(url)
             
             if response.status_code == 200:
-                print(f"Foydalanuvchi {instance.username} {CHAT_ID} telegram guruhidan chiqarildi.")
+                print(f"Foydalanuvchi {instance.fullname} {CHAT_ID} telegram guruhidan chiqarildi.")
             else:
                 print(f"Xatolik yuz berdi: {response.status_code}")
         else:
@@ -28,6 +28,6 @@ def kick_user_from_telegram(sender, instance, **kwargs):
     user_orders = Oylik.objects.filter(user_id=instance.user_id, gruppa=instance.gruppa)  # Foydalanuvchining barcha buyurtmalarini olish
     if user_orders.exists():
         user_orders.delete()  # Buyurtmalarni o'chirish
-        print(f"Foydalanuvchi {instance.username} oylikdan o'chirildi.")
+        print(f"Foydalanuvchi {instance.fullname} oylikdan o'chirildi.")
     else:
-        print(f"Foydalanuvchi {instance.username} oylikdan topilmadi.")    
+        print(f"Foydalanuvchi {instance.fullname} oylikdan topilmadi.")    
