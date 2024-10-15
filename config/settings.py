@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,6 +70,18 @@ DATABASES = {
     }
 }
 
+
+UNFOLD = {
+    "SITE_TITLE": "Settings",
+    "SITE_HEADER": "Online lessons",
+    # "SITE_SYMBOL": "teacher",
+    "SHOW_HISTORY": True, # show/hide "History" button, default: True
+    "SHOW_VIEW_ON_SITE": True,
+    "SIDEBAR": {
+        "show_search": True,  # Search in applications and models names
+        "show_all_applications": True,
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

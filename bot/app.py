@@ -137,6 +137,15 @@ async def EslatmaXabarYuborish(user_id, name, group):
 @dp.message(CommandStart())
 async def Start(message: Message, state: FSMContext):
     await state.clear()   
+    if message.from_user.id == AdminDb[1]:
+        await message.answer(text="Teskor start buyruqlar:")
+        for i in ReadDb('main_gruppa'):
+            bot_info = await bot.get_me()
+            bot_username = bot_info.username
+            link = f"https://t.me/{bot_username}?start={i[2]}"
+            await message.answer(text=f"{i[1]}: {link}")
+        return
+
     referal = message.text.split()[1:]
     if referal:
         await state.update_data({'group': referal[0]})
