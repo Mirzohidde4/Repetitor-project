@@ -19,7 +19,7 @@ bot = Bot(token=AdminDb[4], default=DefaultBotProperties(parse_mode=ParseMode.HT
 dp = Dispatcher()
 
 
-async def EslatmaXabarYuborish(user_id, name, group, action):
+async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlash
     if ReadDb('main_oylik'):
         for i in ReadDb('main_oylik'):
             if i[2] == int(user_id) and i[3] == int(group):
@@ -49,8 +49,8 @@ async def EslatmaXabarYuborish(user_id, name, group, action):
                 if ReadDb('main_oylik'):
                     for member in ReadDb('main_oylik'):
                         if (member[2] == int(user_id)) and (member[3] == int(group)): 
-                            # oy = datetime.now().month
-                            oy = 11 #! vaxtincha
+                            oy = datetime.now().month
+                            # oy = 11 #! vaxtincha
                             if member[5] >= 29: 
                                 if (member[7] == 12) and (oy == 2):
                                     try:
