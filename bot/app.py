@@ -22,10 +22,10 @@ dp = Dispatcher()
 async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlash
     if ReadDb('main_oylik'):
         for i in ReadDb('main_oylik'):
-            if i[2] == int(user_id) and i[3] == int(group):
+            if i[2] == int(user_id) and i[8] == int(group):
                 malumot = i[6]
     
-    if any((user[2] == int(user_id) and user[3] == int(group)) for user in ReadDb('main_oylik')):
+    if any((user[2] == int(user_id) and user[8] == int(group)) for user in ReadDb('main_oylik')):
         if (int(malumot) == 0) and (action == False):
             son = 1
             while not ReadUserStatus(user_id, group): 
@@ -45,26 +45,26 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
         
         elif (int(malumot) == 1) and (action == True):
             today = datetime.now()
-            if today.day == 15 and today.hour == 22:
+            if today.day == 16:
                 if ReadDb('main_oylik'):
                     for member in ReadDb('main_oylik'):
-                        if (member[2] == int(user_id)) and (member[3] == int(group)): 
+                        if (member[2] == int(user_id)) and (member[8] == int(group)): 
                             oy = datetime.now().month
                             # oy = 11 #! vaxtincha
                             if member[5] >= 29: 
                                 if (member[7] == 12) and (oy == 2):
                                     try:
-                                        UpdateOylik('status', False, member[2], member[3])
-                                        UpdateOylik('narx', 100, member[2], member[3])
-                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                        UpdateOylik('status', False, member[2], member[8])
+                                        UpdateOylik('narx', 100, member[2], member[8])
+                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                     except Exception as e:
                                         print(f"Xatolik: {e}")
                                 
                                 elif (oy - member[7]) > 1:
                                     try:
-                                        UpdateOylik('status', False, member[2], member[3])
-                                        UpdateOylik('narx', 100, member[2], member[3])
-                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                        UpdateOylik('status', False, member[2], member[8])
+                                        UpdateOylik('narx', 100, member[2], member[8])
+                                        UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                     except Exception as e:
                                         print(f"Xatolik: {e}")
                                 else:
@@ -73,9 +73,9 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                                 if (member[7] == 2) and (member[5] >= 27):
                                     if (oy - member[7]) > 1:
                                         try:
-                                            UpdateOylik('status', False, member[2], member[3])
-                                            UpdateOylik('narx', 100, member[2], member[3])
-                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                            UpdateOylik('status', False, member[2], member[8])
+                                            UpdateOylik('narx', 100, member[2], member[8])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                         except Exception as e:
                                             print(f"Xatolik: {e}")
                                     else:        
@@ -84,9 +84,9 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                                 elif member[5] <= 5:
                                     if (oy - member[7]) == 1:
                                         try:
-                                            UpdateOylik('status', False, member[2], member[3])
-                                            UpdateOylik('narx', 100, member[2], member[3])
-                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                            UpdateOylik('status', False, member[2], member[8])
+                                            UpdateOylik('narx', 100, member[2], member[8])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                         except Exception as e:
                                             print(f"Xatolik: {e}")  
                                     else:        
@@ -95,9 +95,9 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                                 elif member[5] >= 21:
                                     if (oy - member[7]) == 1:
                                         try:
-                                            UpdateOylik('status', False, member[2], member[3])
-                                            UpdateOylik('narx', 40, member[2], member[3])
-                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                            UpdateOylik('status', False, member[2], member[8])
+                                            UpdateOylik('narx', 40, member[2], member[8])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                         except Exception as e:
                                             print(f"Xatolik: {e}")
                                     else:        
@@ -109,30 +109,30 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                                         kunlar_soni = oylik_kunlar_soni - member[5] + 3
                                         narx = (100 * kunlar_soni) / oylik_kunlar_soni
                                         try:
-                                            UpdateOylik('status', False, member[2], member[3])
-                                            UpdateOylik('narx', int(narx), member[2], member[3])
-                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[3])
+                                            UpdateOylik('status', False, member[2], member[8])
+                                            UpdateOylik('narx', int(narx), member[2], member[8])
+                                            UpdatePeople('monthly', "to'lamagan ❌", member[2], member[8])
                                         except Exception as e:
                                             print(f"Xatolik: {e}") 
                                     else:        
                                         print("Skidka")          
 
                 soni = 1
-                while not ReadUserStatus(member[2], member[3]):
+                while not ReadUserStatus(member[2], member[8]):
                     if soni <= 3:
                         await bot.send_message(chat_id=member[2], text="Oylik to'lovni amalga oshiring", 
-                            reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{member[1]}_{member[3]}"}, just=1))
+                            reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{member[1]}_{member[8]}"}, just=1))
                     else:
                         try:
-                            DeleteOylik(member[2], member[3])
-                            DeletePeople(member[2], member[3])
+                            DeleteOylik(member[2], member[8])
+                            DeletePeople(member[2], member[8])
                         except Exception as e:
                             print(f"User ochirishda xatolik: {e}")
 
-                        user_status = await bot.get_chat_member(member[3], member[2])
+                        user_status = await bot.get_chat_member(member[8], member[2])
                         if user_status.status not in ['creator', 'administrator']:
                             try:
-                                await bot.ban_chat_member(member[3], member[2])
+                                await bot.ban_chat_member(member[8], member[2])
                                 await bot.send_message(member[2], text="To'lovni amalga oshirmaganingiz uchun siz gurugdan chetlatildingiz.") 
                             except Exception as e:
                                 print(f"user chiqarishda xatolik: {e}")        
@@ -315,9 +315,10 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         usersana = str(tn_sana).split('.')[2]
         current_month = datetime.now().month
         yosh = f"{this_year.year - int(usersana)}"
+        grupa = next((gr[1] for gr in ReadDb('main_gruppa') if gr[2] == int(group)), None)
         
         try:
-            PeopleTable(user_id, username, name, telefon, group, sanastart, kasb, tn_sana, hudud, q_telefon, yosh, maqsad, "to'lamagan ❌")
+            PeopleTable(user_id, username, name, telefon, grupa, group, sanastart, kasb, tn_sana, hudud, q_telefon, yosh, maqsad, "to'lamagan ❌")
         except Exception as e:
             print(f"Tablega yuborishda xatolik: {e}")
         
@@ -326,7 +327,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         
         act = True
         if ReadDb('main_oylik'):
-            if any((human[1] == int(user_id) and human[2] == int(group)) for human in ReadDb('main_oylik')):
+            if any((human[2] == int(user_id) and human[8] == int(group)) for human in ReadDb('main_oylik')):
                 print('Already exits')
                 act = False
         if act:    
@@ -339,7 +340,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
             reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{int(group)}"}, just=1))
         await state.set_state(Info.tolov)
         await asyncio.sleep(30)
-        if any(user[3] == int(group) for user in ReadDb('main_oylik')):
+        if any((user[8] == int(group) and (user[2] == user_id)) for user in ReadDb('main_oylik')):
             asyncio.create_task(EslatmaXabarYuborish(user_id, name, int(group), False))
         else:
             print("Gruppa IDsi topilmadi")
@@ -358,8 +359,8 @@ async def Tolov(call: CallbackQuery, state: FSMContext):
     if action == 'qilish':
         if ReadDb('main_oylik'):
             for member in ReadDb('main_oylik'):
-                if (member[2] == user_id) and (member[3] == int(gr)):
-                    if member[8] == 0:
+                if (member[2] == user_id) and (member[8] == int(gr)):
+                    if member[3] == 0:
                         await call.message.answer_photo(photo=FSInputFile(f"../{CardTable[1]}"), 
                             caption=f"{CardTable[3]}: {CardTable[2]}\n\nTo'lovni amalga oshirib, chekini yuboring! (skrinshot yuborsangiz ham bo'ladi). Kurs narxi <b>{member[4]} 000</b> so'm.")
                         await state.set_state(Pay.screen)
@@ -382,7 +383,7 @@ async def Screenshot(message: Message, state: FSMContext):
     if message.photo:
         if ReadDb('main_oylik'):
             for member in ReadDb('main_oylik'):
-                if (member[2] == user_id) and (member[3] == int(sheetgroup)):
+                if (member[2] == user_id) and (member[8] == int(sheetgroup)):
                     sendpay = await message.answer(text="Rahmat! To'lovingiz Jalol Boltayevga yuborildi. Jalol Boltayev to'lovni tasdiqlagach, sizga guruh linkini yuboraman! Havotir olmang! To'lovingiz tez orada tasdiqlanadi (bu 10 daqiqadan 6 soatgacha vaqt olishi mumkin. Jalol ustoz ishda bo'lsalar kechroq tasdiqlab yuboradi).")
                     await bot.send_photo(
                         chat_id=AdminDb[1], photo=message.photo[-1].file_id, caption=f"<b>{user}</b> kurs to'lovini amalga oshirdi.\nQabul qilasizmi?",
@@ -394,7 +395,7 @@ async def Screenshot(message: Message, state: FSMContext):
         if message.document.mime_type in ("application/pdf", "image/jpeg", "image/png"):        
             if ReadDb('main_oylik'): 
                 for member in ReadDb('main_oylik'):
-                    if (member[2] == user_id) and (member[3] == int(sheetgroup)):
+                    if (member[2] == user_id) and (member[8] == int(sheetgroup)):
                         sendpay = await message.answer(text="Rahmat! To'lovingiz Jalol Boltayevga yuborildi. Jalol Boltayev to'lovni tasdiqlagach, sizga guruh linkini yuboraman! Havotir olmang! To'lovingiz tez orada tasdiqlanadi (bu 10 daqiqadan 6 soatgacha vaqt olishi mumkin. Jalol ustoz ishda bo'lsalar kechroq tasdiqlab yuboradi).")
                         await bot.send_document(chat_id=AdminDb[1], document=f"{message.document.file_id}", caption=f"<b>{user}</b> kurs to'lovini amalga oshirdi.\nQabul qilasizmi?",
                             reply_markup=CreateInline({"✅ Ha": f'qabul_xa_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}', "❌ Yo'q": f'qabul_yoq_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}'}, just=2))
@@ -415,7 +416,7 @@ async def Accept(call: CallbackQuery, state: FSMContext):
     if action == "xa":
         await bot.delete_message(chat_id=user_id, message_id=sendpay)        
         for member in ReadDb('main_oylik'):
-            if (member[2] == int(user_id)) and (member[3] == int(sheetgroup)):
+            if (member[2] == int(user_id)) and (member[8] == int(sheetgroup)):
                 fullname = member[1]
                 await bot.send_message(chat_id=user_id,
                     text=f"Qadrli <b>{fullname}</b>, to'lovingiz tasdiqlandi. Jalol Boltayev ustozga ishonchingiz uchun rahmat! Biz ham jamoamiz bilan sizning ishonchingizni oqlashga qattiq harakat qilamiz. Jalol ustoz test materiallari, ta'lim sifati, metodika bilan shug'ullanadi, to'lov masalalari bilan esa men shug'ullanaman. Har to'lov payti kelganda eslatib turaman :)")
@@ -460,7 +461,7 @@ async def NewMember(message: Message):
         action = True
         if ReadDb('main_oylik'):
             for user in ReadDb('main_oylik'):
-                if (user[2] == user_id) and (user[3] == group): 
+                if (user[2] == user_id) and (user[8] == group): 
                     action = False
 
         if action:  
@@ -483,7 +484,7 @@ async def LeftMember(message: Message):
         response = next((gr[1] for gr in ReadDb('main_gruppa') if gr[2] == int(group_id)), None)
         if ReadDb('main_oylik'):
             for user in ReadDb('main_oylik'):
-                if (user[2] == user_id) and (user[3] == group_id):
+                if (user[2] == user_id) and (user[8] == group_id):
                     await bot.send_message(chat_id=AdminDb[1], text=f"Foydalanuvchi <a href='{user_url}'><b>{user[1]}</b></a> {response}-guruhni tark etdi. Ma'lumotlarini tozalaymi?",
                     reply_markup=CreateInline({"✅ Xa": f"tozalash_xa_{user_id}_{group_id}", "❌ Yo'q": f"tozalash_yoq_{user_id}_{group_id}"}, just=2))
         await message.delete()
@@ -520,7 +521,7 @@ async def send_message_to_users():
         if ReadDb('main_oylik'):
             for member in ReadDb('main_oylik'):
                 if member[6] == 1:
-                    await EslatmaXabarYuborish(member[2], member[1], member[3], True)
+                    await EslatmaXabarYuborish(member[2], member[1], member[8], True)
         await asyncio.sleep(60)        
 
 

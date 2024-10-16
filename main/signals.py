@@ -9,7 +9,7 @@ def kick_user_from_telegram(sender, instance, **kwargs):
     print(instance)
     if admi_settings and admi_settings.bot_token:        
         BOT_TOKEN = admi_settings.bot_token
-        CHAT_ID = instance.gruppa   
+        CHAT_ID = instance.gruppa_id   
         telegram_user_id = instance.user_id   
         
         if telegram_user_id:
@@ -25,7 +25,7 @@ def kick_user_from_telegram(sender, instance, **kwargs):
     else:
         print("Admin sozlamalari yoki bot tokeni topilmadi.")
     
-    user_orders = Oylik.objects.filter(user_id=instance.user_id, gruppa=instance.gruppa)  # Foydalanuvchining barcha buyurtmalarini olish
+    user_orders = Oylik.objects.filter(user_id=instance.user_id, gruppa=instance.gruppa_id)  # Foydalanuvchining barcha buyurtmalarini olish
     if user_orders.exists():
         user_orders.delete()  # Buyurtmalarni o'chirish
         print(f"Foydalanuvchi {instance.fullname} oylikdan o'chirildi.")

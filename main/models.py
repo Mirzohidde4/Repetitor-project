@@ -28,7 +28,7 @@ class Card(models.Model):
 class Oylik(models.Model):
     user = models.CharField(verbose_name='foydalanuvchi', max_length=200)
     user_id = models.BigIntegerField(verbose_name='telegram id')
-    gruppa = models.IntegerField(verbose_name='gruppa')
+    gruppa = models.BigIntegerField(verbose_name='gruppa')
     status = models.DecimalField(max_digits=1, decimal_places=0, verbose_name='status')
     narx = models.IntegerField(verbose_name='narx')
     date = models.IntegerField(verbose_name='sana')
@@ -60,7 +60,8 @@ class People(models.Model):
     username = models.CharField(verbose_name='username', max_length=100, null=True, blank=True)
     fullname = models.CharField(verbose_name='ism-familiya', max_length=100)
     phone = models.DecimalField(verbose_name='tel raqam', max_digits=13, decimal_places=0)
-    gruppa = models.CharField(max_length=100, verbose_name='gruppa')
+    gruppa_id = models.BigIntegerField(verbose_name='gruppa id')
+    gruppa = models.CharField(max_length=100, verbose_name='gruppa nomi')
     start = models.CharField(verbose_name='start bot', max_length=10)
     toifa = models.TextField(verbose_name='toifa')
     birthday = models.CharField(max_length=10, verbose_name="tug'ilgan sana")

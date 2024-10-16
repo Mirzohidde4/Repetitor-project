@@ -38,15 +38,15 @@ def OylikStatus(user, user_id, gruppa, narx, sana, malumot, oy, status):
         return False
 
 
-def PeopleTable(user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly):
+def PeopleTable(user_id, username, fullname, phone, gruppa, gruppa_id, start, toifa, birthday, region, second_phone, age, goal, monthly):
     if sql_connect() == True:
         try:
             conn = sql_connection()
             cursor = conn.cursor()
 
             cursor.execute(
-                """INSERT INTO main_people (user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (user_id, username, fullname, phone, gruppa, start, toifa, birthday, region, second_phone, age, goal, monthly),
+                """INSERT INTO main_people (user_id, username, fullname, phone, gruppa, gruppa_id, start, toifa, birthday, region, second_phone, age, goal, monthly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, username, fullname, phone, gruppa, gruppa_id, start, toifa, birthday, region, second_phone, age, goal, monthly),
             )
             conn.commit()
             return True
@@ -109,7 +109,7 @@ def UpdatePeople(argument, status, user_id, group):
     try:
         with sqlite3.connect("../db.sqlite3") as con:
             cur = con.cursor()
-            cur.execute(f"UPDATE main_people SET {argument} = ? WHERE user_id = ? AND gruppa = ?", (status, user_id, group))
+            cur.execute(f"UPDATE main_people SET {argument} = ? WHERE user_id = ? AND gruppa_id = ?", (status, user_id, group))
             con.commit()
             print(f"Updated {argument} for user_id: {user_id} in group: {group}")  # Logging
             return True
@@ -144,7 +144,7 @@ def DeletePeople(userid, gruppa):
         try:
             conn = sql_connection()
             cursor = conn.cursor()
-            query = "DELETE FROM main_people WHERE user_id = ? AND gruppa = ?"
+            query = "DELETE FROM main_people WHERE user_id = ? AND gruppa_id = ?"
             cursor.execute(query, (userid, gruppa))
             conn.commit()
             return True

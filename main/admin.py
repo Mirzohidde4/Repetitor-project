@@ -1,6 +1,8 @@
 from django.contrib import admin, messages
 from .models import Admin, Card, Oylik, People, Gruppa
 from django.contrib.auth.models import User, Group
+from unfold.admin import ModelAdmin
+from django.utils.html import format_html
 
 # Register your models here.
 admin.site.unregister(User)
@@ -8,7 +10,7 @@ admin.site.unregister(Group)
 
 
 @admin.register(Admin)
-class AdminAdmin(admin.ModelAdmin):
+class AdminAdmin(ModelAdmin):
     list_display = ('admin_id', 'link', 'bot_token', 'price')
 
     def has_add_permission(self, request):
@@ -19,7 +21,7 @@ class AdminAdmin(admin.ModelAdmin):
 
 
 @admin.register(Card)
-class AdminCard(admin.ModelAdmin):
+class AdminCard(ModelAdmin):
     list_display = ('photo', 'number', 'username')
 
     def has_add_permission(self, request):
@@ -30,19 +32,29 @@ class AdminCard(admin.ModelAdmin):
 
 
 @admin.register(Gruppa)
-class AdminGruppa(admin.ModelAdmin):
+class AdminGruppa(ModelAdmin):
     list_display = ('name', 'group_id')
     search_fields = ['name']
 
 
 @admin.register(Oylik)
-class AdminOylik(admin.ModelAdmin):
+class AdminOylik(ModelAdmin):
     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
     search_fields = ['user', 'user_id']
 
 
 @admin.register(People)
-class AdminAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'username', 'fullname', 'phone', 'gruppa', 'start', 'toifa', 'birthday', 'region', 'second_phone', 'age', 'goal', 'monthly')
+class AdminAdmin(ModelAdmin):
+    list_display = ('user_id', 'username', 'fullname', 'phone', 'gruppa', 'gruppa_id', 'start', 'toifa', 'birthday', 'region', 'second_phone', 'age', 'goal', 'status_monthly')
     search_fields = ['fullname', 'username', 'phone', 'user_id']
+
+    def status_monthly(self, obj):
+        if obj.monthly == "to'lagan ✅":
+            return format_html('<span style="color: green;">{}</span>', obj.monthly)
+        elif obj.monthly == "to'lamagan ❌":
+            return format_html('<span style="color: red;">{}</span>', obj.monthly)
+        else:
+            return obj.monthly
+
+    status_monthly.short_description = 'Oylik'
 
