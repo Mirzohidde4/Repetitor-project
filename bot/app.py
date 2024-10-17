@@ -1,4 +1,4 @@
-import asyncio, logging, requests, calendar
+import asyncio, logging, calendar
 from aiogram import Bot, Dispatcher, F, html
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ChatInviteLink, FSInputFile
 from aiogram.filters import CommandStart, Command, and_f
@@ -6,10 +6,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from buttons import Telefon, CreateInline, Otkazish, GetCheckbox, checkbox_options, Region, regions, variants
-from functions import Read_User, IsFamiliy, TelefonCheck, BirthCheck
+from dt_baza import (ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople, 
+    UpdatePeople, IsFamiliy, TelefonCheck, BirthCheck)
 from datetime import datetime, timedelta
 from states import Info, Pay
-from dt_baza import ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople, UpdatePeople
 
 
 AdminDb = ReadDb('main_admin')[0]
@@ -45,12 +45,12 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
         
         elif (int(malumot) == 1) and (action == True):
             today = datetime.now()
-            if today.day == 16:
+            if today.day == 17:
                 if ReadDb('main_oylik'):
                     for member in ReadDb('main_oylik'):
                         if (member[2] == int(user_id)) and (member[8] == int(group)): 
-                            oy = datetime.now().month
-                            # oy = 11 #! vaxtincha
+                            # oy = datetime.now().month
+                            oy = 11 #! vaxtincha
                             if member[5] >= 29: 
                                 if (member[7] == 12) and (oy == 2):
                                     try:

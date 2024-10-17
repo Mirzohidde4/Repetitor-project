@@ -13,17 +13,5 @@ class Info(StatesGroup):
     tolov = State()
 
 
-class CardNumber(StatesGroup):
-    photo = State()
-    number = State()
-    name = State()
-
-
 class Pay(StatesGroup):
     screen = State()
-
-
-# class Admin(StatesGroup):
-#     token = State()
-#     admin_id = State()
-#     gruppa = State()
