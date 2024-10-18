@@ -45,7 +45,7 @@ class AdminOylik(ModelAdmin):
 
 @admin.register(People)
 class AdminAdmin(ModelAdmin):
-    list_display = ('user_id', 'username', 'fullname', 'phone', 'gruppa', 'start', 'toifa', 'birthday', 'region', 'second_phone', 'age', 'goal', 'status_monthly')
+    list_display = ('fullname', 'phone', 'gruppa','region', 'goal', 'status_monthly')
     search_fields = ['fullname', 'username', 'phone', 'user_id']
 
     def status_monthly(self, obj):
