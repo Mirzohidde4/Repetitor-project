@@ -1,5 +1,5 @@
 from django.contrib import admin, messages
-from .models import Admin, Card, Oylik, People, Gruppa
+from .models import Admin, Card, Oylik, People, Gruppa, BotButtonInlyne, BotButtonReply, BotMessage
 from django.contrib.auth.models import User, Group
 from unfold.admin import ModelAdmin
 from django.utils.html import format_html
@@ -58,3 +58,8 @@ class AdminAdmin(ModelAdmin):
 
     status_monthly.short_description = 'Oylik'
 
+
+@admin.register(BotMessage)
+class AdminGruppa(ModelAdmin):
+    list_display = ('command', 'text', 'photo')
+    search_fields = ['command']

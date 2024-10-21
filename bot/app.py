@@ -527,7 +527,18 @@ async def send_message_to_users():
 
 @dp.startup()
 async def on_startup():
-    asyncio.create_task(send_message_to_users())
+    # asyncio.create_task(send_message_to_users())
+    today = datetime.now() #! yangi 
+    if ReadDb('main_people'):
+        for i in ReadDb('main_people'):
+            birthday = str(i[7]).split('.')
+            day, month = birthday[0], birthday[1]
+            right_d, right_m = today.day, today.month
+            if (int(day) == right_d) and (int(month) == right_m):
+                try:
+                    await bot.send_message(chat_id=i[1], text=f"Xurmatli {i[3]} Jalol Boltayev sizni tug'ilgan kuningiz bilan chin dildan tabriklaydi.")
+                except Exception as e:
+                    print(f"Xatolik: {e}")        
 
 
 async def main():

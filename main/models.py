@@ -13,7 +13,7 @@ class Admin(models.Model):
 
 
 class Card(models.Model):
-    photo = models.ImageField(verbose_name='qr code', upload_to='images')
+    photo = models.ImageField(verbose_name='qr code', upload_to='images/')
     number = models.DecimalField(verbose_name='karta raqami', max_digits=16, decimal_places=0)
     username = models.CharField(verbose_name='ism-familiya', max_length=150)
 
@@ -77,3 +77,33 @@ class People(models.Model):
     class Meta:
         verbose_name = "O'quvchi"
         verbose_name_plural = "O'quvchilar"
+
+
+class BotMessage(models.Model):
+    command = models.CharField(max_length=255)
+    text = models.TextField()
+    photo = models.ImageField(upload_to='images/', blank=True, null=True)
+
+    def __str__(self):
+        return self.command
+    
+    class Meta:
+        verbose_name = "Xabar"
+        verbose_name_plural = "Xabarlar"
+
+
+class BotButtonInlyne(models.Model):
+    message = models.ForeignKey(BotMessage, on_delete=models.CASCADE, related_name='buttons_inline')
+    text = models.CharField(max_length=100)
+    callback_data = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.text
+
+
+class BotButtonReply(models.Model):
+    message = models.ForeignKey(BotMessage, on_delete=models.CASCADE, related_name='buttons_reply')
+    text = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.text
