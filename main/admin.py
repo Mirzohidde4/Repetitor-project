@@ -37,16 +37,17 @@ class AdminGruppa(ModelAdmin):
     search_fields = ['name']
 
 
-@admin.register(Oylik)
-class AdminOylik(ModelAdmin):
-    list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
-    search_fields = ['user', 'user_id']
+# @admin.register(Oylik)
+# class AdminOylik(ModelAdmin):
+#     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
+#     search_fields = ['user', 'user_id']
 
 
 @admin.register(People)
 class AdminPeople(ModelAdmin):
     list_display = ('fullname', 'phone', 'gruppa','region', 'goal', 'status_monthly')
     search_fields = ['fullname', 'username', 'phone', 'user_id']
+    list_filter = ['gruppa', 'monthly']
 
     def status_monthly(self, obj):
         if obj.monthly == "to'lagan ✅":
@@ -61,13 +62,13 @@ class AdminPeople(ModelAdmin):
 
 @admin.register(BotMessage)
 class AdminMessage(ModelAdmin):
-    list_display = ('command', 'text', 'photo')
+    list_display = ('command', 'text')
     search_fields = ['command']
 
 
 @admin.register(BotButtonInlyne)
 class AdminInline(ModelAdmin):
-    list_display = ('message', 'text', 'callback_data')
+    list_display = ('message', 'text')
     search_fields = ['message']
 
 
