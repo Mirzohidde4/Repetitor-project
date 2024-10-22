@@ -11,6 +11,9 @@ class Admin(models.Model):
         verbose_name = 'Admin'
         verbose_name_plural = 'Adminlar'
 
+    def __str__(self) -> str:
+        return self.link    
+
 
 class Card(models.Model):
     photo = models.ImageField(verbose_name='qr code', upload_to='images/')
@@ -46,6 +49,7 @@ class Oylik(models.Model):
 class Gruppa(models.Model):
     name = models.CharField(verbose_name='gruppa nomi', max_length=100)
     group_id = models.BigIntegerField(verbose_name='gruppa id')
+    price = models.IntegerField(verbose_name='kurs narxi')
 
     def __str__(self) -> str:
         return self.name
@@ -59,7 +63,7 @@ class People(models.Model):
     user_id = models.BigIntegerField(verbose_name='telegram id')
     username = models.CharField(verbose_name='username', max_length=100, null=True, blank=True)
     fullname = models.CharField(verbose_name='ism-familiya', max_length=100)
-    phone = models.DecimalField(verbose_name='tel raqam', max_digits=13, decimal_places=0)
+    phone = models.DecimalField(verbose_name='telefon raqam', max_digits=13, decimal_places=0)
     gruppa_id = models.BigIntegerField(verbose_name='gruppa id')
     gruppa = models.CharField(max_length=100, verbose_name='gruppa nomi')
     start = models.CharField(verbose_name='start bot', max_length=10)

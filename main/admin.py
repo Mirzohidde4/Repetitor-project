@@ -11,18 +11,18 @@ admin.site.unregister(Group)
 
 @admin.register(Admin)
 class AdminAdmin(ModelAdmin):
-    list_display = ('admin_id', 'link', 'bot_token', 'price')
+    list_display = ('admin_id', 'link')
 
     def has_add_permission(self, request):
         if Card.objects.count() >= 1:
             return False
         else:
-            return True
+            return True    
 
 
 @admin.register(Card)
 class AdminCard(ModelAdmin):
-    list_display = ('photo', 'number', 'username')
+    list_display = ('number', 'username')
 
     def has_add_permission(self, request):
         if Card.objects.count() >= 1:
@@ -33,14 +33,8 @@ class AdminCard(ModelAdmin):
 
 @admin.register(Gruppa)
 class AdminGruppa(ModelAdmin):
-    list_display = ('name', 'group_id')
+    list_display = ('name', 'group_id', 'price')
     search_fields = ['name']
-
-
-# @admin.register(Oylik)
-# class AdminOylik(ModelAdmin):
-#     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
-#     search_fields = ['user', 'user_id']
 
 
 @admin.register(People)
@@ -69,10 +63,18 @@ class AdminMessage(ModelAdmin):
 @admin.register(BotButtonInlyne)
 class AdminInline(ModelAdmin):
     list_display = ('message', 'text')
-    search_fields = ['message']
+    search_fields = ['text']
+    list_filter = ['message']
 
 
 @admin.register(BotButtonReply)
 class AdminReply(ModelAdmin):
     list_display = ('message', 'text')
-    search_fields = ['message']
+    search_fields = ['text']
+    list_filter = ['message']
+
+
+# @admin.register(Oylik)
+# class AdminOylik(ModelAdmin):
+#     list_display = ('user', 'user_id', 'gruppa', 'status', 'narx', 'date', 'info', 'month')
+#     search_fields = ['user', 'user_id']    
