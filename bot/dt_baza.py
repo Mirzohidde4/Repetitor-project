@@ -2,7 +2,7 @@ import sqlite3, re
 
 
 def IsFamiliy(familiya):
-    pattern = r'^[A-ZА-Я][a-zа-я]*(ov|ev|ova|eva) [A-ZА-Я][a-zа-я]+$'
+    pattern = r'^[A-Za-zА-Яа-я]+(v|va) [A-Za-zА-Яа-я]+$'
     return re.fullmatch(pattern, familiya) is not None
 
 
@@ -171,3 +171,7 @@ def DeletePeople(userid, gruppa):
                 conn.close()  # Har doim aloqani yopishni unutmang
     return False
 
+
+# from pprint import pprint
+# for i in ReadDb('main_botmessage'):
+#     print(i[1] == 'start') 

@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart, Command, and_f
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
-from buttons import Telefon, CreateInline, Otkazish, GetCheckbox, checkbox_options, Region, regions, variants
+from buttons import Createreply, CreateInline, Otkazish, GetCheckbox, checkbox_options, Region, regions, variants
 from dt_baza import (ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople, 
     UpdatePeople, IsFamiliy, TelefonCheck, BirthCheck)
 from datetime import datetime, timedelta
@@ -148,7 +148,7 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
 @dp.message(CommandStart())
 async def Start(message: Message, state: FSMContext):
     await state.clear()   
-    if message.from_user.id == AdminDb[1]:
+    if message.from_user.id == AdminDb[0]:
         await message.answer(text="Teskor start buyruqlar:")
         for i in ReadDb('main_gruppa'):
             bot_info = await bot.get_me()
@@ -168,30 +168,24 @@ async def Start(message: Message, state: FSMContext):
                 if ReadDb('main_oylik'):
                     for i in ReadDb('main_oylik'):
                         if (i[2] == int(user_id)) and (i[3] == response):
-                            await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
+                            txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'start'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+                            await message.answer(text=txt)
                             job = False
                         break
             except Exception as e:
                 print("User qidirishda xatolik: ", e)    
 
             if job:
-                await message.answer(
-                    text=f"""
-                        Assalomu alaykum, hurmatli <b>{fulname}</b>. Jalol Boltayevning onlayn kursida o'qimoqchimisiz? Men ustoz Jalol Boltayevning yordamchi botiman! 😎🤖
-Ism-familiya, telefon raqami kabi ba'zi ma'lumotlaringizni yozib olishim kerak. Bu juda qisqa vaqt oladi. Keyin sizga yopiq guruhning havolasini yuboraman.
-                    """)
-                await asyncio.sleep(0.2)
-                await message.answer(
-                    text="""
-                        Demak, boshladik.
-Iltimos, familiya-ismingizni yozing (diqqat! dastlab familiya, keyin ismingizni yozing. Masalan, Boltayev Jalol).
-                    """)
+                tx = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'start_link'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+                text = tx.replace('(username)', f"{fulname}")
+                await message.answer(text=text)
                 dt = datetime.now()
                 date = dt.strftime("%d-%m-%Y")
                 await state.update_data({'date': date})
                 await state.set_state(Info.name)
         else:
-            await message.answer(text="😊 <b>Assalomu alaykum <b>Jalol Boltaevning</b> botiga xush kelibsiz.</b>")
+            txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'start'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+            await message.answer(text=txt)
 
 
 @dp.message(Info.name)
@@ -199,30 +193,65 @@ async def Name(message: Message, state: FSMContext):
     if message.text:
         txt = message.text
         if IsFamiliy(txt):
-            await state.update_data({'name': message.text})
-            await message.answer(text="Telefon raqamingizni “<b>kontaktni yuborish</b>” (отправить контакт) tugmasi orqali yuboring.", reply_markup=Telefon)
-            await state.set_state(Info.phone)
+            name_user = message.text.title()
+            await state.update_data({'name': name_user})
+            if ReadDb('main_botmessage'):
+                for i in ReadDb('main_botmessage'):
+                    if i[1] == 'contact':
+                        output = i[2]
+                        id = i[0]
+                        button = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                        if button:
+                            await message.answer(text=output, reply_markup=Createreply(button, contact=True, just=1))
+                            await state.set_state(Info.phone)
+                        else:
+                            await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
+                        break
+            else:
+                await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")        
         else:
-            await message.answer(text="Iltimos, birinchi familiyangizni, so'ng ismingizni yozing. Masalan, <b>Boltayev Jalol</b>.")    
+            out = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'wrong_fullname'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+            await message.answer(text=out)
     else:
-        await message.answer(text="Iltimos, birinchi familiyangizni, so'ng ismingizni yozing. Masalan, <b>Boltayev Jalol</b>.")  
+        out = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'wrong_fullname'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+        await message.answer(text=out)
         
 
 @dp.message(Info.phone)
 async def Phone(message: Message, state: FSMContext):
-    if message.contact:
-        if message.contact.phone_number:
-            await state.update_data({'phone': message.contact.phone_number})
-            await message.answer(text="Sizda qo'shimcha telefon raqami bormi? Bor bo'lsa, 972990066 ko'rinishda yozib yuboring. Agar qo'shimcha raqam mavjud bo'lmasa, “<b>o'tkazib yuborish</b>” tugmasini bosing.",
-                reply_markup=Otkazish)
-            await state.set_state(Info.second_phone)
+    if (message.contact) and (message.contact.phone_number):
+        await state.update_data({'phone': message.contact.phone_number})
+        if ReadDb('main_botmessage'):
+            for j in ReadDb('main_botmessage'):
+                if j[1] == 'second_phone':
+                    output = j[2]
+                    id = j[0]
+                    second = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                    if second:
+                        await message.answer(text=output, reply_markup=Createreply(second, just=1))
+                        await state.set_state(Info.second_phone)
+                    else:
+                        await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
         else:
-            await message.answer(text="Telefon raqamingizni “<b>kontaktni yuborish</b>” (отправить контакт) tugmasi orqali yuboring.", reply_markup=Telefon)
+            await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
     else:
-        await message.answer(text="Telefon raqamingizni “<b>kontaktni yuborish</b>” (отправить контакт) tugmasi orqali yuboring.", reply_markup=Telefon)
+        if ReadDb('main_botmessage'):
+            for i in ReadDb('main_botmessage'):
+                if i[1] == 'contact':
+                    output = i[2]
+                    id = i[0]
+                    button = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                    if button:
+                        await message.answer(text=output, reply_markup=Createreply(button, contact=True, just=1))
+                        await state.set_state(Info.phone)
+                    else:
+                        await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
+                    break
+        else:
+            await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")   
 
 
-@dp.message(Info.second_phone)
+@dp.message(Info.second_phone) #! davomi
 async def QoshimchaRaqam(message: Message, state: FSMContext):
     txt = message.text
     if TelefonCheck(txt) or txt == "o'tkazib yuborish":
@@ -239,6 +268,7 @@ async def QoshimchaRaqam(message: Message, state: FSMContext):
 
 @dp.callback_query(lambda c: c.data in checkbox_options)
 async def EditBtn(call: CallbackQuery):
+    print(call.data)
     checkbox_options[call.data] = not checkbox_options[call.data]
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=GetCheckbox(checkbox_options))
 
@@ -268,7 +298,7 @@ async def Birthday(message: Message, state: FSMContext):
         action = message.text
         if BirthCheck(action):
             await state.update_data({'t_sana': action})
-            await message.answer(text=" Yashash hududingizni belgilang.", reply_markup=Region())
+            await message.answer(text="Yashash hududingizni belgilang.", reply_markup=Region())
             await state.set_state(Info.region)
         else:
             await message.answer(text="Tug'ilgan sanangizni namuna bo'yicha yozing.\n<b>29.07.1998</b>")    
@@ -336,7 +366,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
             except Exception as e:
                 print(f"Bazaga qoshishda xatolik: {e}")
 
-        await call.message.answer(text="Ma'lumotlaringiz qabul qilindi.\nEndi to'lovni amalga oshiring.",
+        await call.message.answer(text="Ma'lumotlaringiz qabul qilindi.Endi to'lovni amalga oshiring.",
             reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{int(group)}"}, just=1))
         await state.set_state(Info.tolov)
         await asyncio.sleep(30)

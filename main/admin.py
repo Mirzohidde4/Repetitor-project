@@ -44,7 +44,7 @@ class AdminOylik(ModelAdmin):
 
 
 @admin.register(People)
-class AdminAdmin(ModelAdmin):
+class AdminPeople(ModelAdmin):
     list_display = ('fullname', 'phone', 'gruppa','region', 'goal', 'status_monthly')
     search_fields = ['fullname', 'username', 'phone', 'user_id']
 
@@ -60,6 +60,18 @@ class AdminAdmin(ModelAdmin):
 
 
 @admin.register(BotMessage)
-class AdminGruppa(ModelAdmin):
+class AdminMessage(ModelAdmin):
     list_display = ('command', 'text', 'photo')
     search_fields = ['command']
+
+
+@admin.register(BotButtonInlyne)
+class AdminInline(ModelAdmin):
+    list_display = ('message', 'text', 'callback_data')
+    search_fields = ['message']
+
+
+@admin.register(BotButtonReply)
+class AdminReply(ModelAdmin):
+    list_display = ('message', 'text')
+    search_fields = ['message']

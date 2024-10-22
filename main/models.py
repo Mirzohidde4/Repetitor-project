@@ -88,8 +88,8 @@ class BotMessage(models.Model):
         return self.command
     
     class Meta:
-        verbose_name = "Xabar"
-        verbose_name_plural = "Xabarlar"
+        verbose_name = "Bot Xabar"
+        verbose_name_plural = "Bot Xabarlar"
 
 
 class BotButtonInlyne(models.Model):
@@ -99,6 +99,10 @@ class BotButtonInlyne(models.Model):
 
     def __str__(self):
         return self.text
+    
+    class Meta:
+        verbose_name = "Bot ichki tugma"
+        verbose_name_plural = "Bot ichki tugmalar"
 
 
 class BotButtonReply(models.Model):
@@ -107,3 +111,7 @@ class BotButtonReply(models.Model):
 
     def __str__(self):
         return self.text
+    
+    class Meta:
+        verbose_name = "Bot tugma"
+        verbose_name_plural = "Bot tugmalar"
