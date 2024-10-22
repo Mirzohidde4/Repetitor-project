@@ -1,5 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from dt_baza import ReadDb
 
 
 def Createreply(*args, contact=False, just=int) -> ReplyKeyboardBuilder:
@@ -8,14 +9,6 @@ def Createreply(*args, contact=False, just=int) -> ReplyKeyboardBuilder:
         bulder.add(KeyboardButton(text=i, request_contact=True if contact else False))
     bulder.adjust(just)
     return bulder.as_markup(resize_keyboard=True, one_time_keyboard=True)
-
-
-Otkazish = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="o'tkazib yuborish")]
-    ], 
-    resize_keyboard=True, one_time_keyboard=True,
-)
 
 
 def CreateInline(*button_rows, just=int) -> InlineKeyboardMarkup:
@@ -30,21 +23,19 @@ def CreateInline(*button_rows, just=int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-checkbox_options = {
-    "O'qituvchi": False,
-    "Repetitor": False,
-    "Abituriyent": False,
-    "Talaba": False
-}
+checkbox_options = {}
+id = next((i[0] for i in ReadDb('main_botmessage') if i[1] == 'toifa'), None)
+for a in ReadDb('main_botbuttoninlyne'):
+    if a[3] == id:
+        checkbox_options[a[1]] = False
 
-variants = {
-    "Milliy sertifikat": False,
-    "Attestatsiya": False,
-    "Vazir jamg'armasi": False,
-    "Olimpiada": False,
-    "Yozgi kirish imtihoni": False,
-    "Madrasa": False
-}
+
+variants = {}
+mid = next((f[0] for f in ReadDb('main_botmessage') if f[1] == 'goal'), None)
+for d in ReadDb('main_botbuttoninlyne'):
+    if d[3] == mid:
+        variants[d[1]] = False
+
 
 def GetCheckbox(dictname: dict):
     keyboard = InlineKeyboardBuilder()

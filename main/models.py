@@ -5,7 +5,6 @@ class Admin(models.Model):
     admin_id = models.BigIntegerField(verbose_name='admin id')
     link = models.CharField(verbose_name='link', max_length=150)
     bot_token = models.CharField(verbose_name='bot token', max_length=200, blank=True, null=True)
-    price = models.IntegerField(verbose_name='kurs narxi')
     
     class Meta:
         verbose_name = 'Admin'

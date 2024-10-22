@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart, Command, and_f
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
-from buttons import Createreply, CreateInline, Otkazish, GetCheckbox, checkbox_options, Region, regions, variants
+from buttons import Createreply, CreateInline, GetCheckbox, checkbox_options, Region, regions, variants
 from dt_baza import (ReadDb, OylikStatus, UpdateOylik, ReadUserStatus, DeleteOylik, PeopleTable, DeletePeople, 
     UpdatePeople, IsFamiliy, TelefonCheck, BirthCheck)
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ from states import Info, Pay
 AdminDb = ReadDb('main_admin')[0]
 CardTable = ReadDb('main_card')[0]
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=AdminDb[4], default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=AdminDb[3], default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
 
@@ -201,8 +201,9 @@ async def Name(message: Message, state: FSMContext):
                         output = i[2]
                         id = i[0]
                         button = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                        outpt = str(output).replace('(button)', f"{button}")
                         if button:
-                            await message.answer(text=output, reply_markup=Createreply(button, contact=True, just=1))
+                            await message.answer(text=outpt, reply_markup=Createreply(button, contact=True, just=1))
                             await state.set_state(Info.phone)
                         else:
                             await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
@@ -227,8 +228,9 @@ async def Phone(message: Message, state: FSMContext):
                     output = j[2]
                     id = j[0]
                     second = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                    out = str(output).replace('(button)', f"{second}")
                     if second:
-                        await message.answer(text=output, reply_markup=Createreply(second, just=1))
+                        await message.answer(text=out, reply_markup=Createreply(second, just=1))
                         await state.set_state(Info.second_phone)
                     else:
                         await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
@@ -251,19 +253,29 @@ async def Phone(message: Message, state: FSMContext):
             await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")   
 
 
-@dp.message(Info.second_phone) #! davomi
+@dp.message(Info.second_phone)
 async def QoshimchaRaqam(message: Message, state: FSMContext):
     txt = message.text
-    if TelefonCheck(txt) or txt == "o'tkazib yuborish":
+    button = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == 4), None)
+    if TelefonCheck(txt) or txt == button:
         await state.update_data({'second_phone': txt})
-        send = await message.answer(text="Qaysi toifadansiz.",reply_markup=ReplyKeyboardRemove())
-        await state.update_data({'send': send.message_id})
-        await message.answer(text="Bir yoki birdan ortiq variantni tanlashingiz ham mumkin!", reply_markup=GetCheckbox(checkbox_options))
+        select = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'toifa'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+        await message.answer(text=select, reply_markup=GetCheckbox(checkbox_options))
         await state.set_state(Info.kasb)
     else:
-        await message.answer(
-            text="Telefon raqamingizni 972990066 ko'rinishda yozib yuboring. Agar qo'shimcha raqam mavjud bo'lmasa, “<b>o'tkazib yuborish</b>” tugmasini bosing.",
-            reply_markup=Otkazish)    
+        if ReadDb('main_botmessage'):
+            for j in ReadDb('main_botmessage'):
+                if j[1] == 'second_phone':
+                    output = j[2]
+                    id = j[0]
+                    second = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == id), None)
+                    if second:
+                        await message.answer(text=output, reply_markup=Createreply(second, just=1))
+                        await state.set_state(Info.second_phone)
+                    else:
+                        await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring")
+        else:
+            await message.answer(text="Xatolik yuz berdi, keyinroq urunib ko'ring") 
 
 
 @dp.callback_query(lambda c: c.data in checkbox_options)
@@ -273,15 +285,12 @@ async def EditBtn(call: CallbackQuery):
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=GetCheckbox(checkbox_options))
 
 
-@dp.callback_query(F.data == "submit", Info.kasb)
+@dp.callback_query(F.data == "submit", Info.kasb) #! davomi
 async def SubmitBtn(call: CallbackQuery, state: FSMContext):
     selected_options = [option for option, is_selected in checkbox_options.items() if is_selected]
     if selected_options:
         await call.message.delete()
-        data = await state.get_data()
-        send = data.get("send")
-        chat_id = call.message.chat.id
-        await bot.delete_message(chat_id=chat_id, message_id=send)
+        # chat_id = call.message.chat.id
 
         await state.update_data({'kasb': ', '.join(selected_options)})
         await call.message.answer(text="Tug'ilgan sanangizni namuna bo'yicha yozing.\n<b>29.07.1998</b>")
@@ -289,7 +298,7 @@ async def SubmitBtn(call: CallbackQuery, state: FSMContext):
         for ch in checkbox_options:
             checkbox_options[ch] = False            
     else:
-        await call.answer(text="Qaysi toifadansiz, tanlang!")    
+        await call.answer(text="Iltimos, tanlang!")    
 
 
 @dp.message(Info.birthday)
@@ -362,7 +371,8 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
                 act = False
         if act:    
             try:
-                OylikStatus(name, user_id, int(group), AdminDb[3], 0, 0, current_month, 0)
+                price = next((i[2] for i in ReadDb('main_gruppa') if i[1] == int(group)), None)
+                OylikStatus(name, user_id, int(group), price, 0, 0, current_month, 0)   #! tekshirish
             except Exception as e:
                 print(f"Bazaga qoshishda xatolik: {e}")
 
