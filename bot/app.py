@@ -259,7 +259,7 @@ async def QoshimchaRaqam(message: Message, state: FSMContext):
     button = next((i[1] for i in ReadDb('main_botbuttonreply') if i[2] == 4), None)
     if TelefonCheck(txt) or txt == button:
         await state.update_data({'second_phone': txt})
-        select = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'toifa'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+        select = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'toifa'), "Ma'lumot topilmadi.")
         await message.answer(text=select, reply_markup=GetCheckbox(checkbox_options))
         await state.set_state(Info.kasb)
     else:
@@ -280,20 +280,18 @@ async def QoshimchaRaqam(message: Message, state: FSMContext):
 
 @dp.callback_query(lambda c: c.data in checkbox_options)
 async def EditBtn(call: CallbackQuery):
-    print(call.data)
     checkbox_options[call.data] = not checkbox_options[call.data]
     await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=GetCheckbox(checkbox_options))
 
 
-@dp.callback_query(F.data == "submit", Info.kasb) #! davomi
+@dp.callback_query(F.data == "submit", Info.kasb)
 async def SubmitBtn(call: CallbackQuery, state: FSMContext):
     selected_options = [option for option, is_selected in checkbox_options.items() if is_selected]
     if selected_options:
         await call.message.delete()
-        # chat_id = call.message.chat.id
-
         await state.update_data({'kasb': ', '.join(selected_options)})
-        await call.message.answer(text="Tug'ilgan sanangizni namuna bo'yicha yozing.\n<b>29.07.1998</b>")
+        birth = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'birthday'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+        await call.message.answer(text=birth)
         await state.set_state(Info.birthday)
         for ch in checkbox_options:
             checkbox_options[ch] = False            
@@ -307,21 +305,23 @@ async def Birthday(message: Message, state: FSMContext):
         action = message.text
         if BirthCheck(action):
             await state.update_data({'t_sana': action})
-            await message.answer(text="Yashash hududingizni belgilang.", reply_markup=Region())
+            rayon = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'region'), "Ma'lumot topilmadi.")
+            await message.answer(text=rayon, reply_markup=Region())
             await state.set_state(Info.region)
         else:
-            await message.answer(text="Tug'ilgan sanangizni namuna bo'yicha yozing.\n<b>29.07.1998</b>")    
+            birth = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'birthday'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+            await message.answer(text=birth)
     else:
-        await message.answer(text="Tug'ilgan sanangizni namuna bo'yicha yozing.\n<b>29.07.1998</b>")
+        birth = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'birthday'), "Xatolik yuz berdi, keyinroq urunib ko'ring")
+        await message.answer(text=birth)
 
 
 @dp.callback_query(lambda c: c.data in regions, Info.region)
 async def Viloyat(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await state.update_data({'hudud': call.data})
-    await call.message.answer(
-        text="Sizga Jalol Boltayevning onlayn kursida nima uchun qatnashyapsiz? Bir yoki birdan ortiq variantni tanlashingiz ham mumkin!",
-        reply_markup=GetCheckbox(variants))
+    goal = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'goal'), "Ma'lumot topilmadi.")
+    await call.message.answer(text=goal, reply_markup=GetCheckbox(variants))
     await state.set_state(Info.maqsad)
 
 
@@ -344,7 +344,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         name = data.get('name')
         telefon = data.get('phone')
         qosh_telefon = data.get('second_phone')
-        q_telefon = (None if qosh_telefon == "o'tkazib yuborish" else qosh_telefon)
+        q_telefon = (qosh_telefon if str(qosh_telefon).isdigit() else None)
         kasb = data.get('kasb')
         tn_sana = data.get('t_sana')
         hudud = data.get('hudud')
@@ -371,13 +371,19 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
                 act = False
         if act:    
             try:
-                price = next((i[2] for i in ReadDb('main_gruppa') if i[1] == int(group)), None)
+                price = next((i[3] for i in ReadDb('main_gruppa') if i[2] == int(group)), None)
                 OylikStatus(name, user_id, int(group), price, 0, 0, current_month, 0)   #! tekshirish
             except Exception as e:
                 print(f"Bazaga qoshishda xatolik: {e}")
 
-        await call.message.answer(text="Ma'lumotlaringiz qabul qilindi.Endi to'lovni amalga oshiring.",
-            reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{int(group)}"}, just=1))
+        if ReadDb('main_botmessage'):
+            for n in ReadDb('main_botmessage'):
+                if n[1] == 'for_pay':
+                    output = n[2]
+                    bid = n[0]
+                    btn = next((i[1] for i in ReadDb('main_botbuttoninlyne') if i[3] == bid), None)
+                    if btn:
+                        await call.message.answer(text=output, reply_markup=CreateInline({btn: f"tolov_qilish_{name}_{int(group)}"}, just=1))
         await state.set_state(Info.tolov)
         await asyncio.sleep(30)
         if any((user[8] == int(group) and (user[2] == user_id)) for user in ReadDb('main_oylik')):
@@ -385,7 +391,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         else:
             print("Gruppa IDsi topilmadi")
     else:
-        await call.answer(text="variantlardan birini tanlang")
+        await call.answer(text="Iltimos, tanlang")
     
 
 @dp.callback_query(F.data.startswith('tolov_'))
@@ -401,8 +407,9 @@ async def Tolov(call: CallbackQuery, state: FSMContext):
             for member in ReadDb('main_oylik'):
                 if (member[2] == user_id) and (member[8] == int(gr)):
                     if member[3] == 0:
-                        await call.message.answer_photo(photo=FSInputFile(f"../{CardTable[1]}"), 
-                            caption=f"{CardTable[3]}: {CardTable[2]}\n\nTo'lovni amalga oshirib, chekini yuboring! (skrinshot yuborsangiz ham bo'ladi). Kurs narxi <b>{member[4]} 000</b> so'm.")
+                        goal = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'paymet'), "Ma'lumot topilmadi.")
+                        out = goal.replace('(price)', str(member[4]))
+                        await call.message.answer_photo(photo=FSInputFile(f"../{CardTable[3]}"), caption=f"{CardTable[1]}: {CardTable[2]}\n\n{out}")
                         await state.set_state(Pay.screen)
                     else:
                         await call.message.answer(text="Siz bu oy uchun to'lov qilgansiz.")
@@ -424,9 +431,11 @@ async def Screenshot(message: Message, state: FSMContext):
         if ReadDb('main_oylik'):
             for member in ReadDb('main_oylik'):
                 if (member[2] == user_id) and (member[8] == int(sheetgroup)):
-                    sendpay = await message.answer(text="Rahmat! To'lovingiz Jalol Boltayevga yuborildi. Jalol Boltayev to'lovni tasdiqlagach, sizga guruh linkini yuboraman! Havotir olmang! To'lovingiz tez orada tasdiqlanadi (bu 10 daqiqadan 6 soatgacha vaqt olishi mumkin. Jalol ustoz ishda bo'lsalar kechroq tasdiqlab yuboradi).")
-                    await bot.send_photo(
-                        chat_id=AdminDb[1], photo=message.photo[-1].file_id, caption=f"<b>{user}</b> kurs to'lovini amalga oshirdi.\nQabul qilasizmi?",
+                    out = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'after_pay'), "Ma'lumot topilmadi.")
+                    sendpay = await message.answer(text=out)
+                    outadmin = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'for_pay_admin'), "Ma'lumot topilmadi.")
+                    foradmin = outadmin.replace('(user)', str(user))
+                    await bot.send_photo(chat_id=AdminDb[1], photo=message.photo[-1].file_id, caption=foradmin,
                         reply_markup=CreateInline({"✅ Ha": f'qabul_xa_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}', "❌ Yo'q": f'qabul_yoq_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}'}, just=2))
         else:
             await message.answer(text="Siz ro'yhatdan o'tmagansiz.")    
@@ -436,15 +445,23 @@ async def Screenshot(message: Message, state: FSMContext):
             if ReadDb('main_oylik'): 
                 for member in ReadDb('main_oylik'):
                     if (member[2] == user_id) and (member[8] == int(sheetgroup)):
-                        sendpay = await message.answer(text="Rahmat! To'lovingiz Jalol Boltayevga yuborildi. Jalol Boltayev to'lovni tasdiqlagach, sizga guruh linkini yuboraman! Havotir olmang! To'lovingiz tez orada tasdiqlanadi (bu 10 daqiqadan 6 soatgacha vaqt olishi mumkin. Jalol ustoz ishda bo'lsalar kechroq tasdiqlab yuboradi).")
-                        await bot.send_document(chat_id=AdminDb[1], document=f"{message.document.file_id}", caption=f"<b>{user}</b> kurs to'lovini amalga oshirdi.\nQabul qilasizmi?",
+                        out = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'after_pay'), "Ma'lumot topilmadi.")
+                        sendpay = await message.answer(text=out)
+                        outadmin = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'for_pay_admin'), "Ma'lumot topilmadi.")
+                        foradmin = outadmin.replace('(user)', str(user))
+                        await bot.send_document(chat_id=AdminDb[1], document=f"{message.document.file_id}", caption=foradmin,
                             reply_markup=CreateInline({"✅ Ha": f'qabul_xa_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}', "❌ Yo'q": f'qabul_yoq_{user_id}_{sheetgroup}_{sendpay.message_id}_{today.day}'}, just=2))
+            else:
+                await message.answer(text="Siz ro'yhatdan o'tmagansiz.")    
     else:
-        await message.answer_photo(photo=CardTable[1],caption=f"{CardTable[3]}: {CardTable[2]}\n\nTo'lovni amalga oshirib screenshotini yuboring.")
-        await state.set_state(Pay.screen)    
+        price = next((x[4] for x in ReadDb('main_oylik') if (x[2] == user_id and x[8] == int(sheetgroup))), None)
+        goal = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'paymet'), "Ma'lumot topilmadi.")
+        out = goal.replace('price', str(price))
+        await message.answer_photo(photo=FSInputFile(f"../{CardTable[3]}"), caption=f"{CardTable[1]}: {CardTable[2]}\n\n{out}")
+        await state.set_state(Pay.screen)
 
 
-@dp.callback_query(F.data.startswith('qabul_')) 
+@dp.callback_query(F.data.startswith('qabul_')) #! continue...
 async def Accept(call: CallbackQuery, state: FSMContext):
     action = call.data.split('_')[1]
     user_id = call.data.split('_')[2]

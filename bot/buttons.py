@@ -47,7 +47,12 @@ def GetCheckbox(dictname: dict):
     return keyboard.as_markup()
 
 
-regions = ["Toshkent", "Andijon", "Buhoro", "Farg'ona", "Jizzax", "Xorazm", "Namangan", "Navoiy", "Qashqadaryo", "Qoraqalpog'iston R.", "Samarqand", "Sirdayo", "Surxondaryo", "Toshkent sh."]
+regions = []
+mid = next((f[0] for f in ReadDb('main_botmessage') if f[1] == 'region'), None)
+for d in ReadDb('main_botbuttoninlyne'):
+    if d[3] == mid:
+        regions.append(d[1])
+
 def Region() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     for r in regions:
