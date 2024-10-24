@@ -19,7 +19,7 @@ bot = Bot(token=AdminDb[3], default=DefaultBotProperties(parse_mode=ParseMode.HT
 dp = Dispatcher()
 
 
-async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlash
+async def EslatmaXabarYuborish(user_id, name, group, action): #! vaxtlar togirlash
     if ReadDb('main_oylik'):
         for i in ReadDb('main_oylik'):
             if i[2] == int(user_id) and i[8] == int(group):
@@ -30,13 +30,15 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
             son = 1
             while not ReadUserStatus(user_id, group): 
                 if son <= 3:
-                    await bot.send_message(user_id, text="Siz hali to'lovni amalga oshirmadingiz. Iltimos, to'lov qiling!",
+                    txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'dont_pay_yet'), "Ma'lumot topilmadi.")
+                    await bot.send_message(user_id, text=txt,
                         reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{name}_{group}"}, just=1))
                 else:
                     try:
                         DeleteOylik(int(user_id), int(group))
                         DeletePeople(int(user_id), int(group))
-                        await bot.send_message(int(user_id), "To'lov qilmaganingiz uchun ma'lumotlaringiz bekor qilindi.")
+                        clear = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'after_dont_pay'), "Ma'lumot topilmadi.")
+                        await bot.send_message(int(user_id), clear)
                     except Exception as e:
                         print(f"User ochirishda xatolik: {e}")
                     break
@@ -120,7 +122,8 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                 soni = 1
                 while not ReadUserStatus(member[2], member[8]):
                     if soni <= 3:
-                        await bot.send_message(chat_id=member[2], text="Oylik to'lovni amalga oshiring", 
+                        month = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'monthly_pay'), "Ma'lumot topilmadi.")
+                        await bot.send_message(chat_id=member[2], text=month, 
                             reply_markup=CreateInline({"💵 To'lov qilish": f"tolov_qilish_{member[1]}_{member[8]}"}, just=1))
                     else:
                         try:
@@ -133,7 +136,8 @@ async def EslatmaXabarYuborish(user_id, name, group, action): # vaxtlar togirlas
                         if user_status.status not in ['creator', 'administrator']:
                             try:
                                 await bot.ban_chat_member(member[8], member[2])
-                                await bot.send_message(member[2], text="To'lovni amalga oshirmaganingiz uchun siz gurugdan chetlatildingiz.") 
+                                rmv = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'remove_group'), "Ma'lumot topilmadi.")
+                                await bot.send_message(member[2], text=rmv) 
                             except Exception as e:
                                 print(f"user chiqarishda xatolik: {e}")        
                         else:
@@ -372,7 +376,7 @@ async def Maqsad(call: CallbackQuery, state: FSMContext):
         if act:    
             try:
                 price = next((i[3] for i in ReadDb('main_gruppa') if i[2] == int(group)), None)
-                OylikStatus(name, user_id, int(group), price, 0, 0, current_month, 0)   #! tekshirish
+                OylikStatus(name, user_id, int(group), price, 0, 0, current_month, 0)
             except Exception as e:
                 print(f"Bazaga qoshishda xatolik: {e}")
 
@@ -461,7 +465,7 @@ async def Screenshot(message: Message, state: FSMContext):
         await state.set_state(Pay.screen)
 
 
-@dp.callback_query(F.data.startswith('qabul_')) #! continue...
+@dp.callback_query(F.data.startswith('qabul_'))
 async def Accept(call: CallbackQuery, state: FSMContext):
     action = call.data.split('_')[1]
     user_id = call.data.split('_')[2]
@@ -469,15 +473,16 @@ async def Accept(call: CallbackQuery, state: FSMContext):
     sendpay = call.data.split('_')[4]
     sana = call.data.split('_')[5]
     await call.message.delete()
+    await bot.delete_message(chat_id=user_id, message_id=sendpay)        
 
     if action == "xa":
-        await bot.delete_message(chat_id=user_id, message_id=sendpay)        
         for member in ReadDb('main_oylik'):
             if (member[2] == int(user_id)) and (member[8] == int(sheetgroup)):
                 fullname = member[1]
-                await bot.send_message(chat_id=user_id,
-                    text=f"Qadrli <b>{fullname}</b>, to'lovingiz tasdiqlandi. Jalol Boltayev ustozga ishonchingiz uchun rahmat! Biz ham jamoamiz bilan sizning ishonchingizni oqlashga qattiq harakat qilamiz. Jalol ustoz test materiallari, ta'lim sifati, metodika bilan shug'ullanadi, to'lov masalalari bilan esa men shug'ullanaman. Har to'lov payti kelganda eslatib turaman :)")
-                
+                thanks = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'for_pay_user_true'), "Ma'lumot topilmadi.")
+                send = thanks.replace('(fullname)', str(fullname))
+                await bot.send_message(chat_id=user_id, text=send)
+
                 if member[6] == 0:
                     try:
                         UpdateOylik('info', 1, user_id, int(sheetgroup))
@@ -485,9 +490,10 @@ async def Accept(call: CallbackQuery, state: FSMContext):
                         print(f"Oylik info yangilashda xatolik: {str(e)}")  
                     
                     try:
+                        group_txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'group_link'), "")
                         # expire_date = timedelta(minutes=5)
                         invite_link: ChatInviteLink = await bot.create_chat_invite_link(chat_id=int(sheetgroup), expire_date=None, member_limit=1)
-                        await bot.send_message(chat_id=user_id, text=f"➕ <b>Guruhga qo'shilishingiz mumkin.</b>\n\n{invite_link.invite_link}")
+                        await bot.send_message(chat_id=user_id, text=f"{group_txt}\n\n{invite_link.invite_link}")
 
                     except Exception as e:
                         print(f"Havola yaratishda xatolik: {str(e)}")  
@@ -502,8 +508,8 @@ async def Accept(call: CallbackQuery, state: FSMContext):
                 print("User topilmadi")                 
     
     elif action == "yoq":
-        await bot.delete_message(chat_id=user_id, message_id=sendpay)
-        await bot.send_message(chat_id=user_id, text="🚫 To'lovingiz qabul qilinmadi.")
+        null = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'for_pay_user_false'), None)
+        await bot.send_message(chat_id=user_id, text=null)
     await state.clear()
 
 
@@ -542,8 +548,9 @@ async def LeftMember(message: Message):
         if ReadDb('main_oylik'):
             for user in ReadDb('main_oylik'):
                 if (user[2] == user_id) and (user[8] == group_id):
-                    await bot.send_message(chat_id=AdminDb[1], text=f"Foydalanuvchi <a href='{user_url}'><b>{user[1]}</b></a> {response}-guruhni tark etdi. Ma'lumotlarini tozalaymi?",
-                    reply_markup=CreateInline({"✅ Xa": f"tozalash_xa_{user_id}_{group_id}", "❌ Yo'q": f"tozalash_yoq_{user_id}_{group_id}"}, just=2))
+                    left = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'left_group'), "Ma'lumot topilmadi.")
+                    send = left.replace('(user group)', f"<a href='{user_url}'>{user[1]}</a> {response}") 
+                    await bot.send_message(chat_id=AdminDb[1], text=send, reply_markup=CreateInline({"✅ Xa": f"tozalash_xa_{user_id}_{group_id}", "❌ Yo'q": f"tozalash_yoq_{user_id}_{group_id}"}, just=2))
         await message.delete()
 
 
@@ -559,6 +566,7 @@ async def Tozalash(call: CallbackQuery):
             DeleteOylik(int(user_id), int(group))
             DeletePeople(int(user_id), int(group))
             print("Ma'lumot muvaffaqiyatli o'chirildi")
+            await call.answer("bajarildi")
         except Exception as e:
             print(f"User ochirishda xatolik: {e}")
         await call.message.delete()
@@ -566,9 +574,10 @@ async def Tozalash(call: CallbackQuery):
     elif action == 'yoq':
         await call.message.delete()
         try:
+            add_txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'add_link'), "")
             # expire_date = timedelta(minutes=5)
             invite_link: ChatInviteLink = await bot.create_chat_invite_link(chat_id=int(group), expire_date=None, member_limit=1)
-            await bot.send_message(chat_id=user_id, text=f"➕ <b>Siz guruhni tark etdingiz, havola orqali qayta qo'shilishingiz mumkin.</b>\n\n{invite_link.invite_link}")
+            await bot.send_message(chat_id=user_id, text=f"{add_txt}\n\n{invite_link.invite_link}")
         except Exception as e:
             print(f"Havola yaratishda xatolik: {str(e)}") 
 
@@ -593,7 +602,8 @@ async def on_startup():
             right_d, right_m = today.day, today.month
             if (int(day) == right_d) and (int(month) == right_m):
                 try:
-                    await bot.send_message(chat_id=i[1], text=f"Xurmatli {i[3]} Jalol Boltayev sizni tug'ilgan kuningiz bilan chin dildan tabriklaydi.")
+                    group_txt = next((i[2] for i in ReadDb('main_botmessage') if i[1] == 'group_link'), None)
+                    # await bot.send_message(chat_id=i[1], text=f"Xurmatli {i[3]} Jalol Boltayev sizni tug'ilgan kuningiz bilan chin dildan tabriklaydi.")
                 except Exception as e:
                     print(f"Xatolik: {e}")        
 

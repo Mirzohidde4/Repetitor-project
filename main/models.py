@@ -85,14 +85,13 @@ class People(models.Model):
 class BotMessage(models.Model):
     command = models.CharField(max_length=255)
     text = models.TextField()
-    photo = models.ImageField(upload_to='images/', blank=True, null=True)
 
     def __str__(self):
         return self.command
     
     class Meta:
-        verbose_name = "Bot Xabar"
-        verbose_name_plural = "Bot Xabarlar"
+        verbose_name = "Xabar"
+        verbose_name_plural = "Xabarlar"
 
 
 class BotButtonInlyne(models.Model):
@@ -104,8 +103,8 @@ class BotButtonInlyne(models.Model):
         return self.text
     
     class Meta:
-        verbose_name = "Bot ichki tugma"
-        verbose_name_plural = "Bot ichki tugmalar"
+        verbose_name = "Ichki tugma"
+        verbose_name_plural = "Ichki tugmalar"
 
 
 class BotButtonReply(models.Model):
@@ -116,5 +115,5 @@ class BotButtonReply(models.Model):
         return self.text
     
     class Meta:
-        verbose_name = "Bot tugma"
-        verbose_name_plural = "Bot tugmalar"
+        verbose_name = "Tugma"
+        verbose_name_plural = "Tugmalar"
